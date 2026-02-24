@@ -1,0 +1,590 @@
+@{
+    ViewData["Title"] = "Settings";
+    Layout = "_Layout";
+}
+
+<div class="page-header d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h3 mb-0">Settings</h1>
+        <p class="text-muted mb-0">Configure your business profile, GST, invoicing, and integrations</p>
+    </div>
+    <div>
+        <button type="button" class="btn btn-primary" onclick="saveCurrentTab()">
+            <i class="fas fa-save me-1"></i>Save Changes
+        </button>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Tab Navigation -->
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-0">
+                <div class="nav flex-column nav-pills" id="settings-tabs">
+                    <a class="nav-link rounded-0 rounded-top px-4 py-3 active" id="t-profile" data-bs-toggle="pill" href="#profile">
+                        <i class="fas fa-building me-2"></i>Business Profile
+                    </a>
+                    <a class="nav-link rounded-0 px-4 py-3" id="t-gst" data-bs-toggle="pill" href="#gst">
+                        <i class="fas fa-percent me-2"></i>GST Settings
+                    </a>
+                    <a class="nav-link rounded-0 px-4 py-3" id="t-invoice" data-bs-toggle="pill" href="#invoice">
+                        <i class="fas fa-file-invoice me-2"></i>Invoice Settings
+                    </a>
+                    <a class="nav-link rounded-0 px-4 py-3" id="t-bank" data-bs-toggle="pill" href="#bank">
+                        <i class="fas fa-university me-2"></i>Bank Accounts
+                    </a>
+                    <a class="nav-link rounded-0 px-4 py-3" id="t-notif" data-bs-toggle="pill" href="#notifications">
+                        <i class="fas fa-bell me-2"></i>Notifications
+                    </a>
+                    <a class="nav-link rounded-0 px-4 py-3" id="t-users" data-bs-toggle="pill" href="#users">
+                        <i class="fas fa-users-cog me-2"></i>User Management
+                    </a>
+                    <a class="nav-link rounded-0 px-4 py-3" id="t-int" data-bs-toggle="pill" href="#integrations">
+                        <i class="fas fa-plug me-2"></i>Integrations
+                    </a>
+                    <a class="nav-link rounded-0 rounded-bottom px-4 py-3" id="t-sub" data-bs-toggle="pill" href="#subscription">
+                        <i class="fas fa-crown me-2"></i>Subscription
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="col-md-9">
+        <div class="tab-content">
+
+            <!-- BUSINESS PROFILE -->
+            <div class="tab-pane fade show active" id="profile">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-transparent border-bottom py-3">
+                        <h5 class="mb-0"><i class="fas fa-building me-2 text-primary"></i>Business Profile</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-4">
+                            <div class="col-md-3 text-center">
+                                <div class="logo-upload-wrapper">
+                                    <div class="logo-placeholder rounded-3 border-2 border-dashed border-primary d-flex align-items-center justify-content-center mb-3"
+                                         style="height:120px;cursor:pointer;background:#f8f9fa" onclick="$('#logoFile').click()">
+                                        <div class="text-center">
+                                            <i class="fas fa-image fa-2x text-muted mb-2 d-block"></i>
+                                            <small class="text-muted">Click to upload logo</small>
+                                        </div>
+                                    </div>
+                                    <input type="file" id="logoFile" class="d-none" accept="image/*">
+                                    <small class="text-muted">PNG/JPG, max 2MB</small>
+                                </div>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Business Name <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control" id="businessName" placeholder="As per GST registration">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">Trade Name</label>
+                                        <input type="text" class="form-control" id="tradeName" placeholder="Trade name (if different)">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">GSTIN <span class="text-danger">*</span></label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control font-monospace text-uppercase" id="gstin"
+                                                   placeholder="22AAAAA0000A1Z5" maxlength="15">
+                                            <button class="btn btn-outline-secondary" onclick="validateGSTIN()">Verify</button>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label fw-semibold">PAN <span class="text-danger">*</span></label>
+                                        <input type="text" class="form-control font-monospace text-uppercase" id="pan"
+                                               placeholder="AAAAA0000A" maxlength="10">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr>
+                        <h6 class="fw-bold text-muted mb-3">BUSINESS DETAILS</h6>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Business Type</label>
+                                <select class="form-select" id="businessType">
+                                    <option>Proprietorship</option>
+                                    <option>Partnership</option>
+                                    <option>LLP</option>
+                                    <option>Private Limited</option>
+                                    <option>Public Limited</option>
+                                    <option>OPC</option>
+                                    <option>Trust / Society</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Industry</label>
+                                <select class="form-select" id="industry">
+                                    <option>Manufacturing</option>
+                                    <option>Retail / Trading</option>
+                                    <option>Services</option>
+                                    <option>IT / Software</option>
+                                    <option>Construction</option>
+                                    <option>Healthcare</option>
+                                    <option>Food & Beverage</option>
+                                    <option>Textile</option>
+                                    <option>Logistics</option>
+                                    <option>Other</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Udyam Reg. No.</label>
+                                <input type="text" class="form-control font-monospace" id="udyam" placeholder="UDYAM-XX-00-0000000">
+                            </div>
+                        </div>
+
+                        <hr>
+                        <h6 class="fw-bold text-muted mb-3">REGISTERED ADDRESS</h6>
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Address Line</label>
+                                <input type="text" class="form-control" id="address" placeholder="Building, street, area">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">City</label>
+                                <input type="text" class="form-control" id="city">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">State</label>
+                                <select class="form-select" id="state">
+                                    <option>Andhra Pradesh</option><option>Arunachal Pradesh</option>
+                                    <option>Assam</option><option>Bihar</option><option>Chhattisgarh</option>
+                                    <option>Delhi</option><option>Goa</option><option>Gujarat</option>
+                                    <option>Haryana</option><option>Himachal Pradesh</option>
+                                    <option>Jharkhand</option><option>Karnataka</option><option>Kerala</option>
+                                    <option>Madhya Pradesh</option><option>Maharashtra</option>
+                                    <option>Manipur</option><option>Meghalaya</option><option>Mizoram</option>
+                                    <option>Nagaland</option><option>Odisha</option><option>Punjab</option>
+                                    <option>Rajasthan</option><option>Sikkim</option><option>Tamil Nadu</option>
+                                    <option>Telangana</option><option>Tripura</option>
+                                    <option selected>Uttar Pradesh</option><option>Uttarakhand</option>
+                                    <option>West Bengal</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">PIN Code</label>
+                                <input type="text" class="form-control" id="pin" placeholder="110001" maxlength="6">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Email</label>
+                                <input type="email" class="form-control" id="email">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Phone</label>
+                                <input type="tel" class="form-control" id="phone">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Website</label>
+                                <input type="url" class="form-control" id="website" placeholder="https://yourbusiness.com">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Financial Year Starts</label>
+                                <select class="form-select" id="fyStart">
+                                    <option value="4" selected>April (Default)</option>
+                                    <option value="1">January</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GST SETTINGS -->
+            <div class="tab-pane fade" id="gst">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-transparent border-bottom py-3">
+                        <h5 class="mb-0"><i class="fas fa-percent me-2 text-success"></i>GST Settings</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">GST Registration Type</label>
+                                <select class="form-select" id="gstRegType">
+                                    <option value="Regular">Regular — Normal taxpayer</option>
+                                    <option value="Composition">Composition — Small dealer scheme</option>
+                                    <option value="QRMP">QRMP — Quarterly filing</option>
+                                    <option value="Unregistered">Unregistered — Below threshold</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Filing Frequency</label>
+                                <select class="form-select" id="filingFreq">
+                                    <option>Monthly</option>
+                                    <option>Quarterly</option>
+                                    <option>Annual</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="eInvoiceEnabled" role="switch">
+                                    <label class="form-check-label fw-semibold" for="eInvoiceEnabled">
+                                        Enable e-Invoice (IRP Integration)
+                                    </label>
+                                </div>
+                                <small class="text-muted">Required for turnover > ₹5 Cr</small>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">e-Way Bill Threshold (₹)</label>
+                                <input type="number" class="form-control" id="ewayThreshold" value="50000">
+                                <small class="text-muted">Auto-generate above this value</small>
+                            </div>
+
+                            <div class="col-md-6" id="compositionDiv" style="display:none">
+                                <label class="form-label fw-semibold">Composition Tax Rate (%)</label>
+                                <select class="form-select" id="compositionRate">
+                                    <option value="1">1% — Manufacturer</option>
+                                    <option value="5">5% — Restaurant</option>
+                                    <option value="6">6% — Trader</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Default TDS Rate (%)</label>
+                                <input type="number" class="form-control" id="tdsRate" value="2" min="0" max="30">
+                            </div>
+
+                            <div class="col-12">
+                                <div class="alert alert-info mb-0">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    Your GSTIN: <strong class="font-monospace" id="gstinDisplay">—</strong>
+                                    &nbsp;|&nbsp; State Code: <strong id="stateCode">—</strong>
+                                    &nbsp;|&nbsp; Due Date: GSTR-1 on 11th, GSTR-3B on 20th of following month
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INVOICE SETTINGS -->
+            <div class="tab-pane fade" id="invoice">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-transparent border-bottom py-3">
+                        <h5 class="mb-0"><i class="fas fa-file-invoice me-2 text-warning"></i>Invoice Settings</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Invoice Prefix</label>
+                                <input type="text" class="form-control" id="invPrefix" placeholder="INV" value="INV">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Next Invoice Number</label>
+                                <input type="number" class="form-control" id="nextInvNum" value="1001">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Preview Format</label>
+                                <div class="form-control bg-light text-muted" id="invPreview">INV-1001</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Default Payment Terms (Days)</label>
+                                <select class="form-select" id="paymentTerms">
+                                    <option value="0">Due on Receipt</option>
+                                    <option value="7">Net 7 Days</option>
+                                    <option value="15">Net 15 Days</option>
+                                    <option value="30" selected>Net 30 Days</option>
+                                    <option value="45">Net 45 Days</option>
+                                    <option value="60">Net 60 Days</option>
+                                    <option value="90">Net 90 Days</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-semibold">Default Currency</label>
+                                <select class="form-select" id="currency">
+                                    <option value="INR" selected>INR — Indian Rupee ₹</option>
+                                    <option value="USD">USD — US Dollar $</option>
+                                    <option value="EUR">EUR — Euro €</option>
+                                    <option value="GBP">GBP — British Pound £</option>
+                                    <option value="AED">AED — UAE Dirham د.إ</option>
+                                </select>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Default Terms & Conditions</label>
+                                <textarea class="form-control" id="termsText" rows="4"
+                                    placeholder="Payment is due within the specified period. Late payment may attract interest..."></textarea>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Bank Details on Invoice</label>
+                                <textarea class="form-control" id="bankDetails" rows="3"
+                                    placeholder="Bank: HDFC Bank&#10;Account No: XXXXXXXXXXXX&#10;IFSC: HDFC0000001"></textarea>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-semibold">Theme Color</label>
+                                <input type="color" class="form-control form-control-color" id="themeColor" value="#0d6efd">
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end">
+                                <div class="form-check form-switch mb-0">
+                                    <input class="form-check-input" type="checkbox" id="showSignature" checked>
+                                    <label class="form-check-label" for="showSignature">Show Signature Line</label>
+                                </div>
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end">
+                                <div class="form-check form-switch mb-0">
+                                    <input class="form-check-input" type="checkbox" id="showQR" checked>
+                                    <label class="form-check-label" for="showQR">Show UPI QR Code</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BANK ACCOUNTS -->
+            <div class="tab-pane fade" id="bank">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-transparent border-bottom py-3 d-flex justify-content-between">
+                        <h5 class="mb-0"><i class="fas fa-university me-2 text-info"></i>Bank Accounts</h5>
+                        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addBankModal">
+                            <i class="fas fa-plus me-1"></i>Add Account
+                        </button>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush" id="bankList">
+                            <div class="list-group-item d-flex align-items-center py-3">
+                                <div class="bg-primary bg-opacity-10 rounded-2 p-2 me-3">
+                                    <i class="fas fa-university text-primary"></i>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="fw-semibold">HDFC Bank — Current Account</div>
+                                    <small class="text-muted font-monospace">XXXX XXXX XXXX 1234 · IFSC: HDFC0001234</small>
+                                </div>
+                                <div class="text-end me-3">
+                                    <div class="fw-semibold text-success">₹1,45,230</div>
+                                    <small class="text-muted">Balance</small>
+                                </div>
+                                <div>
+                                    <span class="badge bg-success">Primary</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <div class="alert alert-info mb-0">
+                                <i class="fas fa-shield-alt me-2"></i>
+                                Connect via <strong>Account Aggregator (AA) Framework</strong> for automatic bank statement sync.
+                                <a href="#" class="alert-link ms-2">Setup AA Integration →</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- NOTIFICATIONS -->
+            <div class="tab-pane fade" id="notifications">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-transparent border-bottom py-3">
+                        <h5 class="mb-0"><i class="fas fa-bell me-2 text-warning"></i>Notification Preferences</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="bg-light"><tr><th>Event</th><th class="text-center">Email</th><th class="text-center">SMS</th><th class="text-center">WhatsApp</th><th class="text-center">In-App</th></tr></thead>
+                                <tbody>
+                                    @foreach (var item in new[] {
+                                        "Invoice Created", "Invoice Paid", "Invoice Overdue",
+                                        "Payment Received", "Low Stock Alert", "GST Filing Reminder",
+                                        "Subscription Renewal", "Payroll Processed", "Leave Request"
+                                    })
+                                    {
+                                    <tr>
+                                        <td>@item</td>
+                                        @for (var i = 0; i < 4; i++) {
+                                        <td class="text-center">
+                                            <div class="form-check form-switch d-flex justify-content-center">
+                                                <input class="form-check-input" type="checkbox" checked>
+                                            </div>
+                                        </td>
+                                        }
+                                    </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- USER MANAGEMENT -->
+            <div class="tab-pane fade" id="users">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-transparent border-bottom py-3 d-flex justify-content-between">
+                        <h5 class="mb-0"><i class="fas fa-users-cog me-2 text-primary"></i>User Management</h5>
+                        <button class="btn btn-sm btn-primary">
+                            <i class="fas fa-user-plus me-1"></i>Invite User
+                        </button>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table table-hover mb-0">
+                            <thead class="bg-light"><tr><th class="ps-4">User</th><th>Role</th><th>Last Active</th><th class="text-center">Status</th><th class="text-center">Actions</th></tr></thead>
+                            <tbody>
+                                <tr>
+                                    <td class="ps-4">
+                                        <div class="fw-semibold">Business Owner</div>
+                                        <small class="text-muted">owner@business.com</small>
+                                    </td>
+                                    <td><span class="badge bg-primary">Owner</span></td>
+                                    <td>Just now</td>
+                                    <td class="text-center"><span class="badge bg-success">Active</span></td>
+                                    <td class="text-center"><span class="text-muted small">Cannot modify owner</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="p-4">
+                            <div class="alert alert-info mb-0">
+                                <i class="fas fa-crown me-2"></i>
+                                User seats available: <strong>3/10</strong> (Growth Plan).
+                                <a href="/Subscription/Plans" class="alert-link">Upgrade for more →</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- INTEGRATIONS -->
+            <div class="tab-pane fade" id="integrations">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-transparent border-bottom py-3">
+                        <h5 class="mb-0"><i class="fas fa-plug me-2 text-success"></i>Integrations</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            @foreach (var intg in new[] {
+                                new { Name = "Razorpay", Icon = "💳", Desc = "Accept online payments", Status = "Connected", Color = "success" },
+                                new { Name = "WhatsApp Business", Icon = "💬", Desc = "Send invoices via WhatsApp", Status = "Configure", Color = "warning" },
+                                new { Name = "Tally Prime", Icon = "📊", Desc = "Two-way sync with Tally ERP", Status = "Pro Plan", Color = "secondary" },
+                                new { Name = "Account Aggregator", Icon = "🏦", Desc = "Auto bank statement import (RBI)", Status = "Configure", Color = "info" },
+                                new { Name = "GST Portal (GSTN)", Icon = "🏛️", Desc = "e-Invoice, e-Way Bill, Filing", Status = "Connected", Color = "success" },
+                                new { Name = "Amazon / Flipkart", Icon = "🛒", Desc = "E-commerce order sync", Status = "Coming Soon", Color = "secondary" }
+                            })
+                            {
+                            <div class="col-md-6">
+                                <div class="card border">
+                                    <div class="card-body d-flex align-items-center">
+                                        <div class="fs-2 me-3">@intg.Icon</div>
+                                        <div class="flex-grow-1">
+                                            <div class="fw-semibold">@intg.Name</div>
+                                            <small class="text-muted">@intg.Desc</small>
+                                        </div>
+                                        <span class="badge bg-@intg.Color">@intg.Status</span>
+                                    </div>
+                                </div>
+                            </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUBSCRIPTION -->
+            <div class="tab-pane fade" id="subscription">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-transparent border-bottom py-3">
+                        <h5 class="mb-0"><i class="fas fa-crown me-2 text-warning"></i>Subscription & Billing</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <div class="border rounded-3 p-4">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <i class="fas fa-crown text-warning fa-2x me-3"></i>
+                                        <div>
+                                            <h5 class="mb-0">Growth Plan</h5>
+                                            <small class="text-muted">Current subscription</small>
+                                        </div>
+                                    </div>
+                                    <ul class="list-unstyled">
+                                        <li><i class="fas fa-check text-success me-2"></i>10 users</li>
+                                        <li><i class="fas fa-check text-success me-2"></i>Unlimited invoices</li>
+                                        <li><i class="fas fa-check text-success me-2"></i>e-Invoice & e-Way Bill</li>
+                                        <li><i class="fas fa-check text-success me-2"></i>Payroll (25 employees)</li>
+                                        <li><i class="fas fa-check text-success me-2"></i>AI-powered cash flow insights</li>
+                                    </ul>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <span class="h4 fw-bold">₹2,499</span><span class="text-muted">/month</span>
+                                            <br><small class="text-muted">Next billing: 19 Mar 2026</small>
+                                        </div>
+                                        <a href="/Subscription/Plans" class="btn btn-outline-primary btn-sm">Upgrade Plan</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="border rounded-3 p-4">
+                                    <h6 class="fw-bold mb-3">Usage This Month</h6>
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <small>Invoices</small><small class="text-muted">47 / Unlimited</small>
+                                        </div>
+                                        <div class="progress" style="height:6px">
+                                            <div class="progress-bar bg-success" style="width:0%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <small>Users</small><small class="text-muted">3 / 10</small>
+                                        </div>
+                                        <div class="progress" style="height:6px">
+                                            <div class="progress-bar bg-info" style="width:30%"></div>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between mb-1">
+                                            <small>Employees (Payroll)</small><small class="text-muted">12 / 25</small>
+                                        </div>
+                                        <div class="progress" style="height:6px">
+                                            <div class="progress-bar bg-warning" style="width:48%"></div>
+                                        </div>
+                                    </div>
+                                    <a href="/Subscription/Billing" class="btn btn-outline-secondary w-100 mt-2">
+                                        <i class="fas fa-receipt me-1"></i>View Billing History
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div><!-- end tab-content -->
+    </div>
+</div>
+
+@section Scripts {
+<script>
+// Live preview for invoice number format
+$('#invPrefix, #nextInvNum').on('input', function() {
+    const prefix = $('#invPrefix').val() || 'INV';
+    const num = $('#nextInvNum').val() || '1001';
+    $('#invPreview').text(prefix + '-' + String(num).padStart(4,'0'));
+});
+
+// GST reg type toggle
+$('#gstRegType').on('change', function() {
+    $('#compositionDiv').toggle($(this).val() === 'Composition');
+});
+
+function validateGSTIN() {
+    const gstin = $('#gstin').val().trim().toUpperCase();
+    if (gstin.length !== 15) { alert('GSTIN must be 15 characters'); return; }
+    // Basic validation
+    const regex = /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/;
+    if (!regex.test(gstin)) { alert('Invalid GSTIN format'); return; }
+    $('#stateCode').text(gstin.substring(0,2));
+    $('#gstinDisplay').text(gstin);
+    alert('✅ Valid GSTIN format! (Live GSTN verification requires GST Portal credentials)');
+}
+
+function saveCurrentTab() {
+    const activeTab = $('.nav-pills .active').attr('href');
+    const toastHtml = `<div class="toast align-items-center text-bg-success border-0 position-fixed bottom-0 end-0 m-3 show" role="alert" style="z-index:9999">
+        <div class="d-flex"><div class="toast-body"><i class="fas fa-check-circle me-2"></i>Settings saved successfully!</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button></div></div>`;
+    $('body').append(toastHtml);
+    setTimeout(() => $('.toast').remove(), 3000);
+}
+</script>
+}

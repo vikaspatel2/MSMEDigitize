@@ -1,0 +1,279 @@
+@{
+    ViewData["Title"] = "Vendors";
+    Layout = "_Layout";
+}
+
+<div class="page-header d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h3 mb-0">Vendors / Suppliers</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="/Dashboard">Dashboard</a></li>
+                <li class="breadcrumb-item active">Vendors</li>
+            </ol>
+        </nav>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="/Vendor/Export" class="btn btn-outline-secondary">
+            <i class="fas fa-download me-1"></i>Export
+        </a>
+        <a href="/Vendor/Create" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i>Add Vendor
+        </a>
+    </div>
+</div>
+
+<!-- KPI Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="bg-primary bg-opacity-10 rounded-3 p-3 me-3">
+                        <i class="fas fa-store text-primary fa-lg"></i>
+                    </div>
+                    <div>
+                        <p class="text-muted small mb-0">Total Vendors</p>
+                        <h4 class="mb-0 fw-bold" id="totalVendors">—</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="bg-danger bg-opacity-10 rounded-3 p-3 me-3">
+                        <i class="fas fa-rupee-sign text-danger fa-lg"></i>
+                    </div>
+                    <div>
+                        <p class="text-muted small mb-0">Accounts Payable</p>
+                        <h4 class="mb-0 fw-bold text-danger" id="totalPayable">—</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="bg-warning bg-opacity-10 rounded-3 p-3 me-3">
+                        <i class="fas fa-file-invoice text-warning fa-lg"></i>
+                    </div>
+                    <div>
+                        <p class="text-muted small mb-0">Pending POs</p>
+                        <h4 class="mb-0 fw-bold text-warning" id="pendingPOs">—</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="bg-danger bg-opacity-10 rounded-3 p-3 me-3">
+                        <i class="fas fa-exclamation-circle text-danger fa-lg"></i>
+                    </div>
+                    <div>
+                        <p class="text-muted small mb-0">Overdue Payments</p>
+                        <h4 class="mb-0 fw-bold text-danger" id="overduePayments">—</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-5">
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent"><i class="fas fa-search text-muted"></i></span>
+                    <input type="text" id="searchInput" class="form-control border-start-0" placeholder="Search by name, GSTIN, phone...">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select id="typeFilter" class="form-select">
+                    <option value="">All Types</option>
+                    <option value="Goods">Goods Supplier</option>
+                    <option value="Services">Service Provider</option>
+                    <option value="Both">Both</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select id="statusFilter" class="form-select">
+                    <option value="">All Status</option>
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-outline-secondary w-100" onclick="clearFilters()">
+                    <i class="fas fa-times me-1"></i>Clear
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Vendor Table -->
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">Vendor</th>
+                        <th>GSTIN / PAN</th>
+                        <th>Contact</th>
+                        <th class="text-end">Outstanding (₹)</th>
+                        <th class="text-center">Credit Days</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="vendorTableBody">
+                    <tr>
+                        <td colspan="7" class="text-center py-5">
+                            <div class="spinner-border text-primary" role="status"></div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="d-flex justify-content-between align-items-center px-4 py-3 border-top">
+            <small class="text-muted" id="pageInfo">Showing — vendors</small>
+            <nav><ul class="pagination pagination-sm mb-0" id="pagination"></ul></nav>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+let allVendors = [], currentPage = 1, pageSize = 15;
+
+$(document).ready(function() {
+    loadVendors();
+    $('#searchInput, #typeFilter, #statusFilter').on('change keyup', function() {
+        currentPage = 1; renderTable();
+    });
+});
+
+function loadVendors() {
+    $.getJSON('/api/vendors', function(data) {
+        allVendors = data.items || data || [];
+        updateKPIs();
+        renderTable();
+    }).fail(function() { renderEmpty(); });
+}
+
+function updateKPIs() {
+    $('#totalVendors').text(allVendors.length);
+    const payable = allVendors.reduce((s, v) => s + (v.outstandingBalance || 0), 0);
+    $('#totalPayable').text('₹' + payable.toLocaleString('en-IN'));
+    // Mock values
+    $('#pendingPOs').text('—');
+    $('#overduePayments').text('—');
+}
+
+function getFiltered() {
+    const q = ($('#searchInput').val() || '').toLowerCase();
+    const type = $('#typeFilter').val();
+    const status = $('#statusFilter').val();
+    return allVendors.filter(v => {
+        const matchQ = !q || (v.name||'').toLowerCase().includes(q) ||
+            (v.gstNumber||'').toLowerCase().includes(q) || (v.phone||'').toLowerCase().includes(q);
+        const matchType = !type || v.vendorType === type;
+        const matchStatus = !status || (status==='Active' ? v.isActive : !v.isActive);
+        return matchQ && matchType && matchStatus;
+    });
+}
+
+function renderTable() {
+    const filtered = getFiltered();
+    const total = filtered.length;
+    const start = (currentPage - 1) * pageSize;
+    const page = filtered.slice(start, start + pageSize);
+    const tbody = $('#vendorTableBody');
+
+    if (total === 0) { renderEmpty(); return; }
+    $('#pageInfo').text(`Showing ${start+1}–${Math.min(start+pageSize,total)} of ${total} vendors`);
+
+    tbody.html(page.map(v => {
+        const hasOutstanding = (v.outstandingBalance || 0) > 0;
+        const statusBadge = v.isActive
+            ? '<span class="badge bg-success-subtle text-success border border-success-subtle">Active</span>'
+            : '<span class="badge bg-secondary-subtle text-secondary border border-secondary-subtle">Inactive</span>';
+        return `
+        <tr>
+          <td class="ps-4">
+            <div class="fw-semibold">${v.name||'—'}</div>
+            <small class="text-muted">${v.companyName||''}</small>
+          </td>
+          <td>
+            <div class="font-monospace small">${v.gstNumber||'—'}</div>
+            <small class="text-muted">${v.panNumber ? 'PAN: '+v.panNumber : ''}</small>
+          </td>
+          <td>
+            <div>${v.email||'—'}</div>
+            <small class="text-muted">${v.phone||''}</small>
+          </td>
+          <td class="text-end fw-semibold ${hasOutstanding ? 'text-danger' : ''}">
+            ₹${(v.outstandingBalance||0).toLocaleString('en-IN')}
+          </td>
+          <td class="text-center">${v.paymentTermDays||0} days</td>
+          <td class="text-center">${statusBadge}</td>
+          <td class="text-center">
+            <div class="btn-group btn-group-sm">
+              <a href="/Vendor/Details/${v.id}" class="btn btn-outline-secondary" title="View"><i class="fas fa-eye"></i></a>
+              <a href="/Vendor/Edit/${v.id}" class="btn btn-outline-primary" title="Edit"><i class="fas fa-edit"></i></a>
+              <a href="/PurchaseOrder/Vendor/${v.id}" class="btn btn-outline-success" title="Purchase History">
+                <i class="fas fa-shopping-cart"></i>
+              </a>
+            </div>
+          </td>
+        </tr>`;
+    }).join(''));
+
+    renderPagination(total);
+}
+
+function renderEmpty() {
+    $('#vendorTableBody').html(`
+        <tr><td colspan="7" class="text-center py-5">
+            <i class="fas fa-store fa-3x text-muted mb-3 d-block"></i>
+            <h5 class="text-muted">No vendors found</h5>
+            <p class="text-muted small">Add your first vendor to get started</p>
+            <a href="/Vendor/Create" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus me-1"></i>Add Vendor
+            </a>
+        </td></tr>`);
+    $('#pageInfo').text('Showing 0 vendors');
+}
+
+function renderPagination(total) {
+    const pages = Math.ceil(total / pageSize);
+    if (pages <= 1) { $('#pagination').html(''); return; }
+    let html = `<li class="page-item ${currentPage===1?'disabled':''}">
+        <a class="page-link" onclick="goPage(${currentPage-1})">‹</a></li>`;
+    for (let i = 1; i <= pages; i++) {
+        html += `<li class="page-item ${i===currentPage?'active':''}">
+            <a class="page-link" onclick="goPage(${i})">${i}</a></li>`;
+    }
+    html += `<li class="page-item ${currentPage===pages?'disabled':''}">
+        <a class="page-link" onclick="goPage(${currentPage+1})">›</a></li>`;
+    $('#pagination').html(html);
+}
+
+function goPage(p) { currentPage = p; renderTable(); }
+function clearFilters() {
+    $('#searchInput').val(''); $('#typeFilter, #statusFilter').val('');
+    currentPage = 1; renderTable();
+}
+</script>
+}

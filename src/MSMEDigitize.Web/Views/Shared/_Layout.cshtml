@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - MSME Digitize</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body class="bg-light">
+@if (User.Identity?.IsAuthenticated == true)
+{
+<div class="d-flex">
+    <nav id="sidebar" class="sidebar bg-dark text-white min-vh-100 p-0" style="width:260px;min-width:260px;position:fixed;top:0;left:0;z-index:100;overflow-y:auto">
+        <div class="sidebar-brand px-4 py-3 border-bottom border-secondary">
+            <h5 class="mb-0 text-white fw-bold"><i class="fas fa-chart-line me-2" style="color:#0d6efd"></i>MSME Digitize</h5>
+        </div>
+        <ul class="nav flex-column p-2 mt-1">
+            <li class="nav-item"><a asp-controller="Dashboard" asp-action="Index" class="nav-link text-white-50 py-2 rounded sidebar-link"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</a></li>
+            <li class="mt-2 px-2"><small class="text-muted text-uppercase" style="font-size:10px;letter-spacing:1px">SALES</small></li>
+            <li class="nav-item"><a asp-controller="Invoice" asp-action="Create" class="nav-link text-white-50 py-2 rounded sidebar-link"><i class="fas fa-plus-circle me-2 text-success"></i>New Invoice</a></li>
+            <li class="nav-item"><a asp-controller="Invoice" asp-action="Index" class="nav-link text-white-50 py-2 rounded sidebar-link"><i class="fas fa-file-invoice me-2"></i>Invoices</a></li>
+            <li class="nav-item"><a asp-controller="Customer" asp-action="Index" class="nav-link text-white-50 py-2 rounded sidebar-link"><i class="fas fa-users me-2"></i>Customers</a></li>
+            <li class="mt-2 px-2"><small class="text-muted text-uppercase" style="font-size:10px;letter-spacing:1px">INVENTORY</small></li>
+            <li class="nav-item"><a asp-controller="Product" asp-action="Index" class="nav-link text-white-50 py-2 rounded sidebar-link"><i class="fas fa-boxes me-2"></i>Products</a></li>
+            <li class="nav-item"><a asp-controller="Vendor" asp-action="Index" class="nav-link text-white-50 py-2 rounded sidebar-link"><i class="fas fa-truck me-2"></i>Vendors</a></li>
+            <li class="mt-2 px-2"><small class="text-muted text-uppercase" style="font-size:10px;letter-spacing:1px">HR & PAYROLL</small></li>
+            <li class="nav-item"><a asp-controller="Employee" asp-action="Index" class="nav-link text-white-50 py-2 rounded sidebar-link"><i class="fas fa-user-tie me-2"></i>Employees</a></li>
+            <li class="nav-item"><a asp-controller="Employee" asp-action="ProcessPayroll" asp-route-month="0" asp-route-year="0" class="nav-link text-white-50 py-2 rounded sidebar-link"><i class="fas fa-money-bill me-2"></i>Payroll</a></li>
+            <li class="mt-2 px-2"><small class="text-muted text-uppercase" style="font-size:10px;letter-spacing:1px">COMPLIANCE</small></li>
+            <li class="nav-item"><a asp-controller="Invoice" asp-action="GSTReport" asp-route-month="0" asp-route-year="0" class="nav-link text-white-50 py-2 rounded sidebar-link"><i class="fas fa-receipt me-2"></i>GST</a></li>
+            <li class="mt-2 px-2"><small class="text-muted text-uppercase" style="font-size:10px;letter-spacing:1px">REPORTS</small></li>
+            <li class="nav-item"><a asp-controller="Reports" asp-action="Index" class="nav-link text-white-50 py-2 rounded sidebar-link"><i class="fas fa-chart-bar me-2"></i>Reports</a></li>
+            <li class="mt-2 px-2"><small class="text-muted text-uppercase" style="font-size:10px;letter-spacing:1px">ACCOUNT</small></li>
+            <li class="nav-item"><a asp-controller="Subscription" asp-action="Plans" class="nav-link text-white-50 py-2 rounded sidebar-link"><i class="fas fa-crown me-2" style="color:gold"></i>Upgrade Plan</a></li>
+            <li class="nav-item"><a asp-controller="Settings" asp-action="Business" class="nav-link text-white-50 py-2 rounded sidebar-link"><i class="fas fa-cog me-2"></i>Settings</a></li>
+        </ul>
+    </nav>
+    <div class="flex-grow-1" style="margin-left:260px">
+        <nav class="navbar navbar-light bg-white border-bottom px-4 py-2 sticky-top">
+            <span class="fw-semibold text-dark">@ViewData["Title"]</span>
+            <div class="ms-auto d-flex align-items-center gap-3">
+                <a href="#" class="btn btn-sm btn-outline-secondary position-relative"><i class="fas fa-bell"></i></a>
+                <div class="dropdown">
+                    <a class="btn btn-sm btn-primary dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                        <i class="fas fa-user-circle me-1"></i>@User.FindFirst("FirstName")?.Value
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow">
+                        <li><a class="dropdown-item" asp-controller="Settings" asp-action="Business"><i class="fas fa-cog me-2"></i>Settings</a></li>
+                        <li><a class="dropdown-item" asp-controller="Subscription" asp-action="Current"><i class="fas fa-crown me-2"></i>My Plan</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form asp-controller="Account" asp-action="Logout" method="post">
+                                @Html.AntiForgeryToken()
+                                <button class="dropdown-item text-danger"><i class="fas fa-sign-out-alt me-2"></i>Logout</button>
+                            </form>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        <main class="p-4">
+            @if (TempData["Success"] != null) {
+                <div class="alert alert-success alert-dismissible fade show shadow-sm"><i class="fas fa-check-circle me-2"></i>@TempData["Success"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+            }
+            @if (TempData["Error"] != null) {
+                <div class="alert alert-danger alert-dismissible fade show shadow-sm"><i class="fas fa-exclamation-triangle me-2"></i>@TempData["Error"]<button type="button" class="btn-close" data-bs-dismiss="alert"></button></div>
+            }
+            @RenderBody()
+        </main>
+    </div>
+</div>
+} else {
+    @RenderBody()
+}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

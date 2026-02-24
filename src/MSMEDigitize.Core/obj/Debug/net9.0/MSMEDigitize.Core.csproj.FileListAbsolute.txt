@@ -1,0 +1,12 @@
+D:\Vikas\MyProjects\MSMEDigitize\src\MSMEDigitize.Core\obj\Debug\net9.0\MSMEDigitize.Core.csproj.AssemblyReference.cache
+D:\Vikas\MyProjects\MSMEDigitize\src\MSMEDigitize.Core\obj\Debug\net9.0\MSMEDigitize.Core.GeneratedMSBuildEditorConfig.editorconfig
+D:\Vikas\MyProjects\MSMEDigitize\src\MSMEDigitize.Core\obj\Debug\net9.0\MSMEDigitize.Core.AssemblyInfoInputs.cache
+D:\Vikas\MyProjects\MSMEDigitize\src\MSMEDigitize.Core\obj\Debug\net9.0\MSMEDigitize.Core.AssemblyInfo.cs
+D:\Vikas\MyProjects\MSMEDigitize\src\MSMEDigitize.Core\obj\Debug\net9.0\MSMEDigitize.Core.csproj.CoreCompileInputs.cache
+D:\Vikas\MyProjects\MSMEDigitize\src\MSMEDigitize.Core\bin\Debug\net9.0\MSMEDigitize.Core.deps.json
+D:\Vikas\MyProjects\MSMEDigitize\src\MSMEDigitize.Core\bin\Debug\net9.0\MSMEDigitize.Core.dll
+D:\Vikas\MyProjects\MSMEDigitize\src\MSMEDigitize.Core\bin\Debug\net9.0\MSMEDigitize.Core.pdb
+D:\Vikas\MyProjects\MSMEDigitize\src\MSMEDigitize.Core\obj\Debug\net9.0\MSMEDigitize.Core.dll
+D:\Vikas\MyProjects\MSMEDigitize\src\MSMEDigitize.Core\obj\Debug\net9.0\refint\MSMEDigitize.Core.dll
+D:\Vikas\MyProjects\MSMEDigitize\src\MSMEDigitize.Core\obj\Debug\net9.0\MSMEDigitize.Core.pdb
+D:\Vikas\MyProjects\MSMEDigitize\src\MSMEDigitize.Core\obj\Debug\net9.0\ref\MSMEDigitize.Core.dll

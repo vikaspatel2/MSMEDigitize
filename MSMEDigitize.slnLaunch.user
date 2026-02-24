@@ -1,0 +1,11 @@
+[
+  {
+    "Name": "New Profile",
+    "Projects": [
+      {
+        "Path": "src\\MSMEDigitize.Web\\MSMEDigitize.Web.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]

@@ -1,0 +1,299 @@
+@{
+    ViewData["Title"] = "Subscription Plans";
+    Layout = "_Layout";
+}
+
+<div class="text-center mb-5">
+    <h1 class="h2 fw-bold">Choose the right plan for your business</h1>
+    <p class="text-muted fs-5">All plans include GST compliance, invoicing, and bank-level security</p>
+
+    <!-- Billing Toggle -->
+    <div class="d-inline-flex align-items-center bg-light rounded-pill px-2 py-1 mt-2">
+        <button class="btn btn-sm rounded-pill px-3 py-2 billing-btn active" id="btnMonthly" onclick="setBilling('monthly')">Monthly</button>
+        <button class="btn btn-sm rounded-pill px-3 py-2 billing-btn" id="btnAnnual" onclick="setBilling('annual')">
+            Annual <span class="badge bg-success ms-1 small">Save 20%</span>
+        </button>
+    </div>
+</div>
+
+<div class="row g-4 justify-content-center mb-5">
+
+    <!-- STARTER -->
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-transparent border-bottom text-center py-4">
+                <div class="fs-2 mb-2">🌱</div>
+                <h4 class="fw-bold mb-1">Starter</h4>
+                <p class="text-muted small mb-0">For solo proprietors & micro businesses</p>
+            </div>
+            <div class="card-body text-center">
+                <div class="my-3">
+                    <span class="h2 fw-bold" id="price-starter-monthly">₹999</span>
+                    <span class="h2 fw-bold d-none" id="price-starter-annual">₹799</span>
+                    <span class="text-muted">/month</span>
+                    <div class="text-muted small mt-1" id="annual-note-starter"></div>
+                </div>
+                <a href="/Subscription/Subscribe?plan=Starter" class="btn btn-outline-primary w-100 mb-3">Get Started</a>
+                <ul class="list-unstyled text-start">
+                    <li class="py-1 border-bottom"><i class="fas fa-users text-muted me-2 w-20"></i><small>3 users</small></li>
+                    <li class="py-1 border-bottom"><i class="fas fa-file-invoice text-muted me-2 w-20"></i><small>50 invoices/month</small></li>
+                    <li class="py-1 border-bottom"><i class="fas fa-user-friends text-muted me-2 w-20"></i><small>50 customers</small></li>
+                    <li class="py-1 border-bottom"><i class="fas fa-box text-muted me-2 w-20"></i><small>500 products</small></li>
+                    <li class="py-1 border-bottom"><i class="fas fa-percent text-success me-2 w-20"></i><small>Basic GST filing</small></li>
+                    <li class="py-1 border-bottom"><i class="fas fa-file-pdf text-success me-2 w-20"></i><small>PDF invoices</small></li>
+                    <li class="py-1 border-bottom"><i class="fab fa-whatsapp text-success me-2 w-20"></i><small>WhatsApp invoices</small></li>
+                    <li class="py-1 text-muted"><i class="fas fa-times text-danger me-2 w-20"></i><small>No payroll, No AI</small></li>
+                </ul>
+            </div>
+            <div class="card-footer bg-transparent text-center text-muted small py-3">
+                ₹999 + 18% GST = <strong>₹1,179/month</strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- GROWTH (POPULAR) -->
+    <div class="col-md-3">
+        <div class="card border-primary border-2 shadow h-100 position-relative">
+            <div class="position-absolute top-0 start-50 translate-middle">
+                <span class="badge bg-primary px-3 py-2 rounded-pill shadow-sm">⭐ MOST POPULAR</span>
+            </div>
+            <div class="card-header bg-primary text-white border-0 text-center py-4 mt-2">
+                <div class="fs-2 mb-2">🚀</div>
+                <h4 class="fw-bold mb-1">Growth</h4>
+                <p class="mb-0 opacity-75 small">For growing SMEs with 5-20 employees</p>
+            </div>
+            <div class="card-body text-center bg-primary bg-opacity-5">
+                <div class="my-3">
+                    <span class="h2 fw-bold text-primary" id="price-growth-monthly">₹2,499</span>
+                    <span class="h2 fw-bold text-primary d-none" id="price-growth-annual">₹1,999</span>
+                    <span class="text-muted">/month</span>
+                    <div class="text-muted small mt-1" id="annual-note-growth"></div>
+                </div>
+                <a href="/Subscription/Subscribe?plan=Growth" class="btn btn-primary w-100 mb-3">Start Growth Plan</a>
+                <ul class="list-unstyled text-start">
+                    <li class="py-1 border-bottom"><i class="fas fa-users text-primary me-2 w-20"></i><small>10 users</small></li>
+                    <li class="py-1 border-bottom"><i class="fas fa-infinity text-primary me-2 w-20"></i><small>Unlimited invoices</small></li>
+                    <li class="py-1 border-bottom"><i class="fas fa-user-friends text-primary me-2 w-20"></i><small>Unlimited customers</small></li>
+                    <li class="py-1 border-bottom"><i class="fas fa-percent text-success me-2 w-20"></i><small>Full GST — GSTR-1, 3B, ITC</small></li>
+                    <li class="py-1 border-bottom"><i class="fas fa-qrcode text-success me-2 w-20"></i><small>e-Invoice & e-Way Bill</small></li>
+                    <li class="py-1 border-bottom"><i class="fas fa-users text-success me-2 w-20"></i><small>Payroll — 25 employees</small></li>
+                    <li class="py-1 border-bottom"><i class="fas fa-robot text-success me-2 w-20"></i><small>AI cash flow forecast</small></li>
+                    <li class="py-1"><i class="fas fa-university text-success me-2 w-20"></i><small>Bank reconciliation</small></li>
+                </ul>
+            </div>
+            <div class="card-footer bg-primary bg-opacity-10 text-center text-muted small py-3">
+                ₹2,499 + 18% GST = <strong>₹2,949/month</strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- PROFESSIONAL -->
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-transparent border-bottom text-center py-4">
+                <div class="fs-2 mb-2">💼</div>
+                <h4 class="fw-bold mb-1">Professional</h4>
+                <p class="text-muted small mb-0">For established MSMEs & mid-sized companies</p>
+            </div>
+            <div class="card-body text-center">
+                <div class="my-3">
+                    <span class="h2 fw-bold" id="price-pro-monthly">₹4,999</span>
+                    <span class="h2 fw-bold d-none" id="price-pro-annual">₹3,999</span>
+                    <span class="text-muted">/month</span>
+                    <div class="text-muted small mt-1" id="annual-note-pro"></div>
+                </div>
+                <a href="/Subscription/Subscribe?plan=Professional" class="btn btn-outline-dark w-100 mb-3">Go Professional</a>
+                <ul class="list-unstyled text-start">
+                    <li class="py-1 border-bottom"><i class="fas fa-users text-muted me-2 w-20"></i><small>25 users</small></li>
+                    <li class="py-1 border-bottom"><i class="fas fa-infinity text-muted me-2 w-20"></i><small>Everything in Growth +</small></li>
+                    <li class="py-1 border-bottom"><i class="fas fa-users text-success me-2 w-20"></i><small>Payroll — 100 employees</small></li>
+                    <li class="py-1 border-bottom"><i class="fas fa-brain text-success me-2 w-20"></i><small>Full AI suite (fraud, churn, loan)</small></li>
+                    <li class="py-1 border-bottom"><i class="fas fa-sync text-success me-2 w-20"></i><small>Tally Prime sync</small></li>
+                    <li class="py-1 border-bottom"><i class="fas fa-piggy-bank text-success me-2 w-20"></i><small>Loan eligibility estimator</small></li>
+                    <li class="py-1 border-bottom"><i class="fas fa-paint-brush text-success me-2 w-20"></i><small>Custom invoice templates</small></li>
+                    <li class="py-1"><i class="fas fa-headset text-success me-2 w-20"></i><small>Priority support (4-hr SLA)</small></li>
+                </ul>
+            </div>
+            <div class="card-footer bg-transparent text-center text-muted small py-3">
+                ₹4,999 + 18% GST = <strong>₹5,899/month</strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- ENTERPRISE -->
+    <div class="col-md-3">
+        <div class="card border-0 shadow h-100" style="background:linear-gradient(135deg,#0d1b2a,#1a3a5c)">
+            <div class="card-header border-0 text-center py-4">
+                <div class="fs-2 mb-2">🏆</div>
+                <h4 class="fw-bold mb-1 text-white">Enterprise</h4>
+                <p class="mb-0 text-white opacity-75 small">Unlimited scale · white-label · multi-entity</p>
+            </div>
+            <div class="card-body text-center">
+                <div class="my-3">
+                    <span class="h2 fw-bold text-white">Custom Pricing</span>
+                    <div class="text-white-50 small mt-1">Negotiated annually</div>
+                </div>
+                <a href="/Contact?plan=Enterprise" class="btn btn-light w-100 mb-3 fw-bold">Contact Sales</a>
+                <ul class="list-unstyled text-start text-white">
+                    <li class="py-1 border-bottom border-secondary"><i class="fas fa-infinity text-warning me-2 w-20"></i><small>Unlimited users & entities</small></li>
+                    <li class="py-1 border-bottom border-secondary"><i class="fas fa-server text-warning me-2 w-20"></i><small>Dedicated database</small></li>
+                    <li class="py-1 border-bottom border-secondary"><i class="fas fa-globe text-warning me-2 w-20"></i><small>Custom domain & white-label</small></li>
+                    <li class="py-1 border-bottom border-secondary"><i class="fas fa-building text-warning me-2 w-20"></i><small>Multi-entity / group companies</small></li>
+                    <li class="py-1 border-bottom border-secondary"><i class="fas fa-clock text-warning me-2 w-20"></i><small>24×7 SLA support</small></li>
+                    <li class="py-1 border-bottom border-secondary"><i class="fas fa-home text-warning me-2 w-20"></i><small>On-premise deployment option</small></li>
+                    <li class="py-1"><i class="fas fa-user-tie text-warning me-2 w-20"></i><small>Dedicated account manager</small></li>
+                </ul>
+            </div>
+            <div class="card-footer border-top border-secondary text-center text-white-50 small py-3">
+                Minimum ₹50,000/month · Annual contract
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Feature Comparison -->
+<div class="card border-0 shadow-sm mb-5">
+    <div class="card-header bg-transparent text-center py-4">
+        <h4 class="fw-bold mb-0">Full Feature Comparison</h4>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4 py-3" style="width:40%">Feature</th>
+                        <th class="text-center py-3">Starter</th>
+                        <th class="text-center py-3 bg-primary bg-opacity-10">Growth</th>
+                        <th class="text-center py-3">Professional</th>
+                        <th class="text-center py-3">Enterprise</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @{
+                        var features = new[] {
+                            ("GST Invoicing", "Basic", "Full", "Full", "Full"),
+                            ("GSTR-1 Filing", "✅", "✅", "✅", "✅"),
+                            ("GSTR-3B Filing", "✅", "✅", "✅", "✅"),
+                            ("e-Invoice (IRP)", "❌", "✅", "✅", "✅"),
+                            ("e-Way Bill", "❌", "✅", "✅", "✅"),
+                            ("Customers / Vendors", "50 / 20", "Unlimited", "Unlimited", "Unlimited"),
+                            ("Products", "500", "Unlimited", "Unlimited", "Unlimited"),
+                            ("Payroll", "❌", "25 Emp", "100 Emp", "Unlimited"),
+                            ("AI Cash Flow Forecast", "❌", "✅", "✅", "✅"),
+                            ("AI Fraud Detection", "❌", "❌", "✅", "✅"),
+                            ("AI Churn Prediction", "❌", "❌", "✅", "✅"),
+                            ("Loan Eligibility AI", "❌", "❌", "✅", "✅"),
+                            ("Bank Reconciliation", "❌", "✅", "✅", "✅"),
+                            ("Tally Sync", "❌", "❌", "✅", "✅"),
+                            ("Multi-entity", "❌", "❌", "❌", "✅"),
+                            ("White Label", "❌", "❌", "❌", "✅"),
+                            ("API Access", "❌", "Limited", "Full", "Full"),
+                            ("Support", "Email", "Priority Email", "4-hr SLA", "24×7 SLA")
+                        };
+                    }
+                    @foreach (var f in features)
+                    {
+                    <tr>
+                        <td class="ps-4 py-2 fw-semibold small">@f.Item1</td>
+                        <td class="text-center py-2 small">@f.Item2</td>
+                        <td class="text-center py-2 small bg-primary bg-opacity-5 fw-semibold">@f.Item3</td>
+                        <td class="text-center py-2 small">@f.Item4</td>
+                        <td class="text-center py-2 small">@f.Item5</td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Trust badges -->
+<div class="row g-4 text-center mb-5">
+    <div class="col-md-3">
+        <i class="fas fa-shield-alt fa-2x text-success mb-2"></i>
+        <h6 class="fw-bold">Bank-Level Security</h6>
+        <p class="text-muted small">AES-256 encryption, 2FA, audit logs</p>
+    </div>
+    <div class="col-md-3">
+        <i class="fas fa-clock fa-2x text-primary mb-2"></i>
+        <h6 class="fw-bold">99.9% Uptime SLA</h6>
+        <p class="text-muted small">Cloud infrastructure, auto failover</p>
+    </div>
+    <div class="col-md-3">
+        <i class="fas fa-headset fa-2x text-warning mb-2"></i>
+        <h6 class="fw-bold">Expert Support</h6>
+        <p class="text-muted small">CA-backed GST compliance support</p>
+    </div>
+    <div class="col-md-3">
+        <i class="fas fa-balance-scale fa-2x text-info mb-2"></i>
+        <h6 class="fw-bold">GST & IT Compliant</h6>
+        <p class="text-muted small">Updated for latest govt. mandates</p>
+    </div>
+</div>
+
+<!-- FAQ -->
+<div class="card border-0 shadow-sm mb-5">
+    <div class="card-header bg-transparent py-4 text-center">
+        <h4 class="fw-bold mb-0">Frequently Asked Questions</h4>
+    </div>
+    <div class="card-body">
+        <div class="accordion" id="faq">
+            @{
+                var faqs = new[] {
+                    ("Can I switch plans anytime?", "Yes! Upgrade instantly; downgrade at next billing cycle. No questions asked."),
+                    ("Is there a free trial?", "All new accounts get 14 days free trial on the Growth plan. No credit card required."),
+                    ("What payment methods are accepted?", "UPI, NEFT/RTGS, debit/credit cards, net banking via Razorpay. GST invoice provided."),
+                    ("How is data protected?", "All data is encrypted at rest (AES-256) and in transit (TLS 1.3). Hosted on Azure India Central."),
+                    ("Can I cancel anytime?", "Yes. Annual plans get prorated refund. Monthly plans cancel at end of billing period.")
+                };
+                int fi = 0;
+            }
+            @foreach (var faq in faqs)
+            {
+            <div class="accordion-item border-0">
+                <h2 class="accordion-header">
+                    <button class="accordion-button @(fi>0?"collapsed":"")" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#faq@fi">
+                        @faq.Item1
+                    </button>
+                </h2>
+                <div id="faq@fi" class="accordion-collapse collapse @(fi==0?"show":"")" data-bs-parent="#faq">
+                    <div class="accordion-body text-muted">@faq.Item2</div>
+                </div>
+            </div>
+            fi++;
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+let billing = 'monthly';
+const prices = {
+    starter:  { monthly: '₹999', annual: '₹799', annualNote: 'Billed ₹9,588/year (save ₹2,400)' },
+    growth:   { monthly: '₹2,499', annual: '₹1,999', annualNote: 'Billed ₹23,988/year (save ₹6,000)' },
+    pro:      { monthly: '₹4,999', annual: '₹3,999', annualNote: 'Billed ₹47,988/year (save ₹12,000)' }
+};
+
+function setBilling(type) {
+    billing = type;
+    $('#btnMonthly, #btnAnnual').removeClass('active btn-primary btn-light').addClass('btn-outline-secondary');
+    if (type === 'monthly') {
+        $('#btnMonthly').removeClass('btn-outline-secondary').addClass('active btn-primary');
+        Object.entries(prices).forEach(([k,v]) => {
+            $(`#price-${k}-monthly`).removeClass('d-none');
+            $(`#price-${k}-annual`).addClass('d-none');
+            $(`#annual-note-${k}`).text('');
+        });
+    } else {
+        $('#btnAnnual').removeClass('btn-outline-secondary').addClass('active btn-primary');
+        Object.entries(prices).forEach(([k,v]) => {
+            $(`#price-${k}-monthly`).addClass('d-none');
+            $(`#price-${k}-annual`).removeClass('d-none');
+            $(`#annual-note-${k}`).text(v.annualNote);
+        });
+    }
+}
+</script>
+}

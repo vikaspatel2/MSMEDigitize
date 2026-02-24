@@ -1,0 +1,36 @@
+@model MSMEDigitize.Web.ViewModels.LoginViewModel
+@{ ViewData["Title"] = "Login"; Layout = null; }
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sign In - MSME Digitize</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>body{background:linear-gradient(135deg,#0f2027,#2c5364);min-height:100vh;display:flex;align-items:center}.login-card{border-radius:16px;box-shadow:0 30px 80px rgba(0,0,0,.4)}</style>
+</head><body>
+<div class="container"><div class="row justify-content-center"><div class="col-md-5 col-lg-4">
+<div class="text-center mb-4">
+  <div class="d-inline-flex align-items-center justify-content-center bg-primary rounded-3 mb-3" style="width:60px;height:60px"><i class="fas fa-chart-line text-white fa-2x"></i></div>
+  <h3 class="text-white fw-bold">MSME Digitize</h3>
+  <p class="text-white-50">India's Smart Business Suite</p>
+</div>
+<div class="card login-card border-0 p-4">
+  <h5 class="fw-bold mb-1">Welcome back!</h5>
+  <p class="text-muted small mb-3">Sign in to your dashboard</p>
+  @Html.ValidationSummary(false, "", new { @class="alert alert-danger py-2 small mb-3" })
+  <form asp-action="Login" method="post">
+    @Html.AntiForgeryToken()
+    <div class="mb-3"><label class="form-label small fw-semibold">Email</label>
+    <input asp-for="Email" class="form-control" placeholder="you@business.com" autofocus autocomplete="email"></div>
+    <div class="mb-3">
+      <div class="d-flex justify-content-between mb-1">
+        <label class="form-label small fw-semibold mb-0">Password</label>
+        <a asp-action="ForgotPassword" class="small text-primary">Forgot?</a>
+      </div>
+      <input asp-for="Password" type="password" class="form-control" placeholder="Your password">
+    </div>
+    <div class="mb-3 form-check"><input asp-for="RememberMe" class="form-check-input"><label asp-for="RememberMe" class="form-check-label small">Keep me signed in</label></div>
+    <button type="submit" class="btn btn-primary w-100 fw-semibold py-2">Sign In <i class="fas fa-arrow-right ms-2"></i></button>
+  </form>
+  <hr class="my-3"><p class="text-center small mb-0">New business? <a asp-action="Register" class="fw-bold text-primary">Start free trial</a></p>
+</div></div></div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+</body></html>

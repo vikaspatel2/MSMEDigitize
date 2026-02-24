@@ -1,0 +1,64 @@
+@model MSMEDigitize.Core.DTOs.DashboardMetricsDto
+@{ ViewData["Title"] = "Dashboard"; }
+<div class="row g-4 mb-4">
+  <div class="col-md-3"><div class="card border-0 shadow-sm h-100"><div class="card-body"><div class="d-flex align-items-center"><div class="flex-shrink-0 bg-success bg-opacity-10 rounded-3 p-3 me-3"><i class="fas fa-rupee-sign text-success fa-lg"></i></div><div><p class="text-muted small mb-1">Monthly Revenue</p><h4 class="fw-bold mb-0">₹@Model.MonthlyRevenue.ToString("N0")</h4></div></div></div></div></div>
+  <div class="col-md-3"><div class="card border-0 shadow-sm h-100"><div class="card-body"><div class="d-flex align-items-center"><div class="flex-shrink-0 bg-warning bg-opacity-10 rounded-3 p-3 me-3"><i class="fas fa-clock text-warning fa-lg"></i></div><div><p class="text-muted small mb-1">Outstanding</p><h4 class="fw-bold mb-0">₹@Model.OutstandingAmount.ToString("N0")</h4></div></div></div></div></div>
+  <div class="col-md-3"><div class="card border-0 shadow-sm h-100"><div class="card-body"><div class="d-flex align-items-center"><div class="flex-shrink-0 bg-danger bg-opacity-10 rounded-3 p-3 me-3"><i class="fas fa-exclamation text-danger fa-lg"></i></div><div><p class="text-muted small mb-1">Overdue</p><h4 class="fw-bold mb-0">₹@Model.OverdueAmount.ToString("N0")</h4></div></div></div></div></div>
+  <div class="col-md-3"><div class="card border-0 shadow-sm h-100"><div class="card-body"><div class="d-flex align-items-center"><div class="flex-shrink-0 bg-info bg-opacity-10 rounded-3 p-3 me-3"><i class="fas fa-users text-info fa-lg"></i></div><div><p class="text-muted small mb-1">Customers</p><h4 class="fw-bold mb-0">@Model.TotalCustomers</h4></div></div></div></div></div>
+</div>
+<div class="row g-4 mb-4">
+  <div class="col-md-3"><div class="card border-0 shadow-sm"><div class="card-body text-center"><i class="fas fa-file-invoice fa-2x text-primary mb-2"></i><h5 class="fw-bold">@Model.TotalInvoices</h5><p class="text-muted small mb-0">Total Invoices</p></div></div></div>
+  <div class="col-md-3"><div class="card border-0 shadow-sm"><div class="card-body text-center"><i class="fas fa-boxes fa-2x text-purple mb-2" style="color:#6f42c1"></i><h5 class="fw-bold">@Model.TotalProducts</h5><p class="text-muted small mb-0">Products (<span class="text-danger">@Model.LowStockProducts low</span>)</p></div></div></div>
+  <div class="col-md-3"><div class="card border-0 shadow-sm"><div class="card-body text-center"><i class="fas fa-user-tie fa-2x text-success mb-2"></i><h5 class="fw-bold">@Model.TotalEmployees</h5><p class="text-muted small mb-0">Employees</p></div></div></div>
+  <div class="col-md-3"><div class="card border-0 shadow-sm"><div class="card-body text-center"><i class="fas fa-university fa-2x text-info mb-2"></i><h5 class="fw-bold">₹@Model.BankBalance.ToString("N0")</h5><p class="text-muted small mb-0">Bank Balance</p></div></div></div>
+</div>
+<div class="row g-4">
+  <div class="col-md-8">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white border-0 pb-0"><h6 class="fw-bold mb-0">Revenue Trend (12 months)</h6></div>
+      <div class="card-body"><canvas id="revenueChart" height="120"></canvas></div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card border-0 shadow-sm">
+      <div class="card-header bg-white border-0 pb-0"><h6 class="fw-bold mb-0">Recent Invoices</h6></div>
+      <div class="card-body p-0">
+        <div class="list-group list-group-flush">
+          @foreach(var inv in Model.RecentInvoices.Take(5)){
+          <div class="list-group-item border-0 py-2">
+            <div class="d-flex justify-content-between align-items-center">
+              <div><div class="small fw-semibold">@inv.InvoiceNumber</div><div class="text-muted" style="font-size:11px">@inv.CustomerName</div></div>
+              <div class="text-end"><div class="small fw-bold">₹@inv.Amount.ToString("N0")</div>
+              <span class="badge rounded-pill @(inv.Status=="Paid"?"bg-success":inv.Status=="Overdue"?"bg-danger":"bg-warning text-dark")" style="font-size:9px">@inv.Status</span>
+              </div>
+            </div>
+          </div>}
+        </div>
+      </div>
+      <div class="card-footer bg-white border-0 text-center"><a asp-controller="Invoice" asp-action="Index" class="btn btn-sm btn-outline-primary">View All</a></div>
+    </div>
+  </div>
+</div>
+@if(Model.StockAlerts.Any()){
+<div class="row mt-4">
+  <div class="col-12"><div class="alert alert-warning shadow-sm border-0">
+    <strong><i class="fas fa-exclamation-triangle me-2"></i>Low Stock Alert:</strong>
+    @string.Join(", ", Model.StockAlerts.Select(s => $"{s.ProductName} ({s.CurrentStock} {s.Unit})"))
+    <a asp-controller="Product" asp-action="Index" asp-route-lowStock="true" class="btn btn-sm btn-warning ms-3">View Products</a>
+  </div></div>
+</div>}
+
+@section Scripts {
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+const ctx = document.getElementById('revenueChart').getContext('2d');
+const data = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.MonthlyRevenueChart));
+new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: data.map(d => d.Month),
+    datasets: [{label: 'Revenue', data: data.map(d => d.Revenue), borderColor: '#0d6efd', backgroundColor: 'rgba(13,110,253,.1)', fill: true, tension: 0.4, pointRadius: 4}]
+  },
+  options: {responsive: true, plugins: {legend: {display: false}}, scales: {y: {ticks: {callback: v => '₹' + (v/1000).toFixed(0) + 'k'}}}}
+});
+</script>}

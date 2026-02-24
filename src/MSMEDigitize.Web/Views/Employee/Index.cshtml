@@ -1,0 +1,301 @@
+@{
+    ViewData["Title"] = "Employees";
+    Layout = "_Layout";
+}
+
+<div class="page-header d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h3 mb-0">Employees</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="/Dashboard">Dashboard</a></li>
+                <li class="breadcrumb-item active">Employees</li>
+            </ol>
+        </nav>
+    </div>
+    <div class="d-flex gap-2">
+        <a href="/Employee/Import" class="btn btn-outline-secondary">
+            <i class="fas fa-upload me-1"></i>Bulk Import
+        </a>
+        <a href="/Employee/Create" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i>Add Employee
+        </a>
+    </div>
+</div>
+
+<!-- KPI Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="avatar bg-primary bg-opacity-10 rounded-3 p-3 me-3">
+                        <i class="fas fa-users text-primary fa-lg"></i>
+                    </div>
+                    <div>
+                        <p class="text-muted small mb-0">Total Employees</p>
+                        <h4 class="mb-0 fw-bold" id="totalEmp">—</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="avatar bg-success bg-opacity-10 rounded-3 p-3 me-3">
+                        <i class="fas fa-user-check text-success fa-lg"></i>
+                    </div>
+                    <div>
+                        <p class="text-muted small mb-0">Active</p>
+                        <h4 class="mb-0 fw-bold text-success" id="activeEmp">—</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="avatar bg-warning bg-opacity-10 rounded-3 p-3 me-3">
+                        <i class="fas fa-umbrella-beach text-warning fa-lg"></i>
+                    </div>
+                    <div>
+                        <p class="text-muted small mb-0">On Leave Today</p>
+                        <h4 class="mb-0 fw-bold text-warning" id="onLeave">—</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="avatar bg-info bg-opacity-10 rounded-3 p-3 me-3">
+                        <i class="fas fa-money-bill-wave text-info fa-lg"></i>
+                    </div>
+                    <div>
+                        <p class="text-muted small mb-0">Monthly Payroll</p>
+                        <h4 class="mb-0 fw-bold text-info" id="payrollTotal">—</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Search & Filters -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text bg-transparent"><i class="fas fa-search text-muted"></i></span>
+                    <input type="text" id="searchInput" class="form-control border-start-0" placeholder="Search by name, code, email...">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <select id="deptFilter" class="form-select">
+                    <option value="">All Departments</option>
+                    <option>Engineering</option>
+                    <option>Sales</option>
+                    <option>Finance</option>
+                    <option>HR</option>
+                    <option>Operations</option>
+                    <option>Marketing</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select id="statusFilter" class="form-select">
+                    <option value="">All Status</option>
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
+                    <option value="OnLeave">On Leave</option>
+                    <option value="Probation">Probation</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select id="typeFilter" class="form-select">
+                    <option value="">All Types</option>
+                    <option>Permanent</option>
+                    <option>Contract</option>
+                    <option>Intern</option>
+                    <option>Part-time</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button class="btn btn-outline-secondary w-100" onclick="clearFilters()">
+                    <i class="fas fa-times me-1"></i>Clear
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Employee Table -->
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" id="empTable">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-4">Employee</th>
+                        <th>Department</th>
+                        <th>Contact</th>
+                        <th>Joining Date</th>
+                        <th class="text-end">Gross Salary</th>
+                        <th class="text-center">Status</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="empTableBody">
+                    <tr>
+                        <td colspan="7" class="text-center py-5">
+                            <div class="spinner-border text-primary" role="status"></div>
+                            <p class="text-muted mt-2">Loading employees...</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="d-flex justify-content-between align-items-center px-4 py-3 border-top">
+            <small class="text-muted" id="pageInfo">Showing — of — employees</small>
+            <nav>
+                <ul class="pagination pagination-sm mb-0" id="pagination"></ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+let allEmployees = [], currentPage = 1, pageSize = 15;
+
+$(document).ready(function() {
+    loadEmployees();
+    $('#searchInput, #deptFilter, #statusFilter, #typeFilter').on('change keyup', function() {
+        currentPage = 1;
+        renderTable();
+    });
+});
+
+function loadEmployees() {
+    $.getJSON('/api/employees', function(data) {
+        allEmployees = data.items || data || [];
+        $('#totalEmp').text(allEmployees.length);
+        $('#activeEmp').text(allEmployees.filter(e => e.status === 'Active').length);
+        $('#onLeave').text(allEmployees.filter(e => e.status === 'OnLeave').length);
+        const totalPayroll = allEmployees.reduce((s, e) => s + (e.grossSalary || 0), 0);
+        $('#payrollTotal').text('₹' + totalPayroll.toLocaleString('en-IN'));
+        renderTable();
+    }).fail(function() {
+        // Show empty state if API not ready
+        renderEmpty();
+    });
+}
+
+function getFiltered() {
+    const q = $('#searchInput').val().toLowerCase();
+    const dept = $('#deptFilter').val();
+    const status = $('#statusFilter').val();
+    const type = $('#typeFilter').val();
+    return allEmployees.filter(e => {
+        const matchQ = !q || (e.fullName||'').toLowerCase().includes(q) ||
+            (e.employeeCode||'').toLowerCase().includes(q) || (e.email||'').toLowerCase().includes(q);
+        const matchDept = !dept || e.department === dept;
+        const matchStatus = !status || e.status === status;
+        const matchType = !type || e.employmentType === type;
+        return matchQ && matchDept && matchStatus && matchType;
+    });
+}
+
+function renderTable() {
+    const filtered = getFiltered();
+    const total = filtered.length;
+    const start = (currentPage - 1) * pageSize;
+    const page = filtered.slice(start, start + pageSize);
+    const tbody = $('#empTableBody');
+
+    if (total === 0) { renderEmpty(); return; }
+
+    $('#pageInfo').text(`Showing ${start+1}–${Math.min(start+pageSize,total)} of ${total} employees`);
+
+    tbody.html(page.map(e => {
+        const initials = (e.fullName||'?').split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+        const badgeClass = {Active:'success', Inactive:'secondary', OnLeave:'warning', Probation:'info'}[e.status] || 'secondary';
+        return `
+        <tr>
+          <td class="ps-4">
+            <div class="d-flex align-items-center">
+              <div class="avatar-circle bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3"
+                   style="width:40px;height:40px;font-size:14px;font-weight:600;flex-shrink:0">${initials}</div>
+              <div>
+                <div class="fw-semibold">${e.fullName||'—'}</div>
+                <small class="text-muted">${e.employeeCode||''} · ${e.designation||''}</small>
+              </div>
+            </div>
+          </td>
+          <td>${e.department||'—'}</td>
+          <td>
+            <div>${e.email||'—'}</div>
+            <small class="text-muted">${e.phone||''}</small>
+          </td>
+          <td>${e.joiningDate ? new Date(e.joiningDate).toLocaleDateString('en-IN') : '—'}</td>
+          <td class="text-end fw-semibold">₹${(e.grossSalary||0).toLocaleString('en-IN')}</td>
+          <td class="text-center"><span class="badge bg-${badgeClass}-subtle text-${badgeClass} border border-${badgeClass}-subtle">${e.status||'—'}</span></td>
+          <td class="text-center">
+            <div class="btn-group btn-group-sm">
+              <a href="/Employee/Details/${e.id}" class="btn btn-outline-secondary" title="View"><i class="fas fa-eye"></i></a>
+              <a href="/Employee/Edit/${e.id}" class="btn btn-outline-primary" title="Edit"><i class="fas fa-edit"></i></a>
+              <a href="/Employee/Payslips/${e.id}" class="btn btn-outline-success" title="Payslips"><i class="fas fa-file-invoice-dollar"></i></a>
+              <a href="/Employee/Attendance/${e.id}" class="btn btn-outline-info" title="Attendance"><i class="fas fa-calendar-check"></i></a>
+            </div>
+          </td>
+        </tr>`;
+    }).join(''));
+
+    renderPagination(total);
+}
+
+function renderEmpty() {
+    $('#empTableBody').html(`
+        <tr><td colspan="7" class="text-center py-5">
+            <i class="fas fa-users fa-3x text-muted mb-3 d-block"></i>
+            <h5 class="text-muted">No employees found</h5>
+            <p class="text-muted small">Try adjusting your search or add your first employee</p>
+            <a href="/Employee/Create" class="btn btn-primary btn-sm">
+                <i class="fas fa-plus me-1"></i>Add First Employee
+            </a>
+        </td></tr>`);
+    $('#pageInfo').text('Showing 0 of 0 employees');
+}
+
+function renderPagination(total) {
+    const pages = Math.ceil(total / pageSize);
+    if (pages <= 1) { $('#pagination').html(''); return; }
+    let html = `<li class="page-item ${currentPage===1?'disabled':''}">
+        <a class="page-link" onclick="goPage(${currentPage-1})"><i class="fas fa-chevron-left"></i></a></li>`;
+    for (let i = 1; i <= pages; i++) {
+        if (i===1 || i===pages || Math.abs(i-currentPage)<=2)
+            html += `<li class="page-item ${i===currentPage?'active':''}">
+                <a class="page-link" onclick="goPage(${i})">${i}</a></li>`;
+        else if (Math.abs(i-currentPage)===3)
+            html += `<li class="page-item disabled"><a class="page-link">…</a></li>`;
+    }
+    html += `<li class="page-item ${currentPage===pages?'disabled':''}">
+        <a class="page-link" onclick="goPage(${currentPage+1})"><i class="fas fa-chevron-right"></i></a></li>`;
+    $('#pagination').html(html);
+}
+
+function goPage(p) { currentPage = p; renderTable(); }
+function clearFilters() {
+    $('#searchInput').val(''); $('#deptFilter, #statusFilter, #typeFilter').val('');
+    currentPage = 1; renderTable();
+}
+</script>
+}

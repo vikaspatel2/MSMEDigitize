@@ -1,0 +1,55 @@
+@model MSMEDigitize.Web.ViewModels.RegisterViewModel
+@{ ViewData["Title"] = "Start Free Trial"; Layout = null; }
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Start Free Trial - MSME Digitize</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>body{background:linear-gradient(135deg,#0f2027,#2c5364);min-height:100vh}.card{border-radius:16px}</style>
+</head><body class="py-4">
+<div class="container"><div class="row justify-content-center"><div class="col-lg-6 col-md-8">
+<div class="text-center mb-4">
+  <div class="d-inline-flex align-items-center justify-content-center bg-primary rounded-3 mb-3" style="width:60px;height:60px"><i class="fas fa-chart-line text-white fa-2x"></i></div>
+  <h3 class="text-white fw-bold">MSME Digitize</h3>
+  <p class="text-white-50">Start free — 14 days, no credit card needed</p>
+</div>
+<div class="card border-0 shadow p-4">
+  <h5 class="fw-bold mb-1">Create your account</h5>
+  @Html.ValidationSummary(false,"",new{@class="alert alert-danger py-2 small"})
+  <form asp-action="Register" method="post">
+    @Html.AntiForgeryToken()
+    <div class="row g-3">
+      <div class="col-6"><label class="form-label small fw-semibold">First Name *</label><input asp-for="FirstName" class="form-control" placeholder="Rahul"></div>
+      <div class="col-6"><label class="form-label small fw-semibold">Last Name *</label><input asp-for="LastName" class="form-control" placeholder="Sharma"></div>
+      <div class="col-12"><label class="form-label small fw-semibold">Work Email *</label><input asp-for="Email" class="form-control" type="email" placeholder="you@company.com"></div>
+      <div class="col-12"><label class="form-label small fw-semibold">Mobile *</label><div class="input-group"><span class="input-group-text">+91</span><input asp-for="Phone" class="form-control" placeholder="9876543210" maxlength="10"></div></div>
+      <div class="col-12"><label class="form-label small fw-semibold">Business Name *</label><input asp-for="BusinessName" class="form-control" placeholder="ABC Enterprises"></div>
+      <div class="col-md-6"><label class="form-label small fw-semibold">Business Type *</label>
+       @*  <select asp-for="BusinessType" class="form-select">
+          <option>Sole Proprietorship</option><option>Partnership Firm</option>
+          <option>Private Limited (Pvt. Ltd.)</option><option>LLP</option><option>OPC</option>
+        </select> *@
+                                <select asp-for="BusinessType"
+                                        asp-items="Html.GetEnumSelectList<BusinessType>()"
+                                        class="form-select">
+                                    <option value="">Select Business Type</option>
+                                </select>
+      </div>
+      <div class="col-md-6"><label class="form-label small fw-semibold">Industry *</label>
+      @*   <select asp-for="Industry" class="form-select">
+          <option value="">Select...</option>
+          <option>Manufacturing</option><option>Retail</option><option>Services</option>
+          <option>Food &amp; Beverage</option><option>IT/Technology</option>
+          <option>Healthcare</option><option>Education</option><option>Textile</option>
+          <option>Construction</option><option>Agriculture</option><option>Other</option>
+        </select> *@
+      </div>
+      <div class="col-12"><label class="form-label small fw-semibold">GST Number (Optional)</label><input asp-for="GSTNumber" class="form-control" placeholder="22AAAAA0000A1Z5" maxlength="15" style="text-transform:uppercase"></div>
+      <div class="col-md-6"><label class="form-label small fw-semibold">Password *</label><input asp-for="Password" type="password" class="form-control" placeholder="Min 8 chars"></div>
+      @* <div class="col-md-6"><label class="form-label small fw-semibold">Confirm Password *</label><input asp-for="ConfirmPassword" type="password" class="form-control"></div> *@
+    </div>
+    <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold mt-3"><i class="fas fa-rocket me-2"></i>Start 14-Day Free Trial</button>
+  </form>
+  <p class="text-center text-muted small mt-3 mb-0">Already registered? <a asp-action="Login" class="fw-bold text-primary">Sign In</a></p>
+</div></div></div></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+</body></html>

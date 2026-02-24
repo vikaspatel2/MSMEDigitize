@@ -1,0 +1,4 @@
+D:\Vikas\MyProjects\MSMEDigitize\src\MSMEDigitize.Web\wwwroot\css\site.css
+D:\Vikas\MyProjects\MSMEDigitize\src\MSMEDigitize.Web\wwwroot\js\site.js
+wwwroot\css\site.css
+wwwroot\js\site.js

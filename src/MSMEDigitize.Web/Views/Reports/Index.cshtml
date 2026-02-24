@@ -1,0 +1,345 @@
+@{
+    ViewData["Title"] = "Reports & Analytics";
+    Layout = "_Layout";
+}
+
+<div class="page-header d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h3 mb-0">Reports & Analytics</h1>
+        <p class="text-muted mb-0">Download, analyze, and share business reports</p>
+    </div>
+    <div class="d-flex gap-2">
+        <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#scheduleModal">
+            <i class="fas fa-clock me-1"></i>Schedule Report
+        </button>
+    </div>
+</div>
+
+<!-- Quick Date Range for Financial PDF -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <div class="row g-3 align-items-end">
+            <div class="col-auto">
+                <label class="form-label fw-semibold">Quick Financial PDF Download</label>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small text-muted">From Date</label>
+                <input type="date" class="form-control" id="fromDate"
+                       value="@(new DateTime(DateTime.Now.Year, DateTime.Now.Month, 1).ToString("yyyy-MM-dd"))">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small text-muted">To Date</label>
+                <input type="date" class="form-control" id="toDate"
+                       value="@DateTime.Now.ToString("yyyy-MM-dd")">
+            </div>
+            <div class="col-auto">
+                <button class="btn btn-danger" onclick="downloadFinancialPdf()">
+                    <i class="fas fa-file-pdf me-1"></i>Download PDF
+                </button>
+            </div>
+            <div class="col-auto">
+                <div class="btn-group">
+                    <button class="btn btn-outline-secondary btn-sm" onclick="setDateRange('month')">This Month</button>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="setDateRange('quarter')">This Quarter</button>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="setDateRange('fy')">This FY</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Report Categories -->
+<div class="row g-4">
+
+    <!-- FINANCIAL REPORTS -->
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-transparent border-bottom py-3">
+                <h6 class="fw-bold mb-0">
+                    <i class="fas fa-chart-line me-2 text-primary"></i>Financial Reports
+                </h6>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    <a href="/Reports/Sales" class="list-group-item list-group-item-action d-flex align-items-center py-3 px-4">
+                        <div class="bg-primary bg-opacity-10 rounded-2 p-2 me-3 flex-shrink-0">
+                            <i class="fas fa-chart-bar text-primary"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold small">Sales Report</div>
+                            <div class="text-muted small">Revenue, collections, outstanding</div>
+                        </div>
+                        <i class="fas fa-chevron-right text-muted small"></i>
+                    </a>
+                    <a href="/Reports/ProfitLoss" class="list-group-item list-group-item-action d-flex align-items-center py-3 px-4">
+                        <div class="bg-success bg-opacity-10 rounded-2 p-2 me-3 flex-shrink-0">
+                            <i class="fas fa-balance-scale text-success"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold small">P&L Statement</div>
+                            <div class="text-muted small">Income vs expense analysis</div>
+                        </div>
+                        <i class="fas fa-chevron-right text-muted small"></i>
+                    </a>
+                    <div class="list-group-item d-flex align-items-center py-3 px-4">
+                        <div class="bg-danger bg-opacity-10 rounded-2 p-2 me-3 flex-shrink-0">
+                            <i class="fas fa-file-pdf text-danger"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold small">Financial Report PDF</div>
+                            <div class="text-muted small">Full KPI + P&L + breakdown</div>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-danger-subtle text-danger border border-danger-subtle">PDF</span>
+                            <button class="btn btn-outline-danger btn-sm py-0" onclick="downloadFinancialPdf()">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="list-group-item d-flex align-items-center py-3 px-4">
+                        <div class="bg-success bg-opacity-10 rounded-2 p-2 me-3 flex-shrink-0">
+                            <i class="fas fa-file-excel text-success"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold small">Sales Excel Export</div>
+                            <div class="text-muted small">Full invoice data in XLSX</div>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-success-subtle text-success border border-success-subtle">XLSX</span>
+                            <a href="/Reports/SalesExcel" class="btn btn-outline-success btn-sm py-0">
+                                <i class="fas fa-download"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <a href="/Reports/Ledger" class="list-group-item list-group-item-action d-flex align-items-center py-3 px-4">
+                        <div class="bg-info bg-opacity-10 rounded-2 p-2 me-3 flex-shrink-0">
+                            <i class="fas fa-book text-info"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold small">Customer Ledger</div>
+                            <div class="text-muted small">Transaction history per customer</div>
+                        </div>
+                        <i class="fas fa-chevron-right text-muted small"></i>
+                    </a>
+                    <a href="/Reports/CashFlow" class="list-group-item list-group-item-action d-flex align-items-center py-3 px-4">
+                        <div class="bg-warning bg-opacity-10 rounded-2 p-2 me-3 flex-shrink-0">
+                            <i class="fas fa-water text-warning"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold small">Cash Flow Statement</div>
+                            <div class="text-muted small">Inflow / outflow analysis</div>
+                        </div>
+                        <i class="fas fa-chevron-right text-muted small"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- GST REPORTS -->
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-transparent border-bottom py-3">
+                <h6 class="fw-bold mb-0">
+                    <i class="fas fa-percent me-2 text-success"></i>GST Reports
+                </h6>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    <a href="/Reports/GSTR1" class="list-group-item list-group-item-action d-flex align-items-center py-3 px-4">
+                        <div class="bg-success bg-opacity-10 rounded-2 p-2 me-3 flex-shrink-0">
+                            <i class="fas fa-file-alt text-success"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold small">GSTR-1 Summary</div>
+                            <div class="text-muted small">Outward supplies — B2B, B2C, Export</div>
+                        </div>
+                        <i class="fas fa-chevron-right text-muted small"></i>
+                    </a>
+                    <a href="/Reports/GSTR3B" class="list-group-item list-group-item-action d-flex align-items-center py-3 px-4">
+                        <div class="bg-info bg-opacity-10 rounded-2 p-2 me-3 flex-shrink-0">
+                            <i class="fas fa-calculator text-info"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold small">GSTR-3B Summary</div>
+                            <div class="text-muted small">Monthly tax liability vs ITC</div>
+                        </div>
+                        <i class="fas fa-chevron-right text-muted small"></i>
+                    </a>
+                    <a href="/Reports/ITCReconciliation" class="list-group-item list-group-item-action d-flex align-items-center py-3 px-4">
+                        <div class="bg-warning bg-opacity-10 rounded-2 p-2 me-3 flex-shrink-0">
+                            <i class="fas fa-balance-scale text-warning"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold small">ITC Reconciliation</div>
+                            <div class="text-muted small">2A vs 2B vs your books</div>
+                        </div>
+                        <span class="badge bg-warning-subtle text-warning border border-warning-subtle ms-2">2A/2B</span>
+                    </a>
+                    <a href="/Reports/HSNSummary" class="list-group-item list-group-item-action d-flex align-items-center py-3 px-4">
+                        <div class="bg-primary bg-opacity-10 rounded-2 p-2 me-3 flex-shrink-0">
+                            <i class="fas fa-barcode text-primary"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold small">HSN/SAC Summary</div>
+                            <div class="text-muted small">Supply summary by commodity code</div>
+                        </div>
+                        <i class="fas fa-chevron-right text-muted small"></i>
+                    </a>
+                    <a href="/Reports/GSTFilingHistory" class="list-group-item list-group-item-action d-flex align-items-center py-3 px-4">
+                        <div class="bg-secondary bg-opacity-10 rounded-2 p-2 me-3 flex-shrink-0">
+                            <i class="fas fa-history text-secondary"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold small">Filing History</div>
+                            <div class="text-muted small">All past returns & acknowledgements</div>
+                        </div>
+                        <i class="fas fa-chevron-right text-muted small"></i>
+                    </a>
+                    <a href="/Reports/GSTPayables" class="list-group-item list-group-item-action d-flex align-items-center py-3 px-4">
+                        <div class="bg-danger bg-opacity-10 rounded-2 p-2 me-3 flex-shrink-0">
+                            <i class="fas fa-rupee-sign text-danger"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold small">GST Payable Tracker</div>
+                            <div class="text-muted small">Monthly liability & payment status</div>
+                        </div>
+                        <i class="fas fa-chevron-right text-muted small"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- INVENTORY & HR REPORTS -->
+    <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-transparent border-bottom py-3">
+                <h6 class="fw-bold mb-0">
+                    <i class="fas fa-boxes me-2 text-warning"></i>Inventory & HR Reports
+                </h6>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    <a href="/Reports/StockStatus" class="list-group-item list-group-item-action d-flex align-items-center py-3 px-4">
+                        <div class="bg-warning bg-opacity-10 rounded-2 p-2 me-3 flex-shrink-0">
+                            <i class="fas fa-boxes text-warning"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold small">Stock Status Report</div>
+                            <div class="text-muted small">Current stock, min level alerts</div>
+                        </div>
+                        <i class="fas fa-chevron-right text-muted small"></i>
+                    </a>
+                    <a href="/Reports/StockMovement" class="list-group-item list-group-item-action d-flex align-items-center py-3 px-4">
+                        <div class="bg-info bg-opacity-10 rounded-2 p-2 me-3 flex-shrink-0">
+                            <i class="fas fa-truck text-info"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold small">Stock Movement</div>
+                            <div class="text-muted small">In/out movement with dates</div>
+                        </div>
+                        <i class="fas fa-chevron-right text-muted small"></i>
+                    </a>
+                    <a href="/Reports/PayrollSummary" class="list-group-item list-group-item-action d-flex align-items-center py-3 px-4">
+                        <div class="bg-success bg-opacity-10 rounded-2 p-2 me-3 flex-shrink-0">
+                            <i class="fas fa-money-bill-wave text-success"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold small">Payroll Summary</div>
+                            <div class="text-muted small">CTC, deductions, net salary</div>
+                        </div>
+                        <i class="fas fa-chevron-right text-muted small"></i>
+                    </a>
+                    <a href="/Reports/Attendance" class="list-group-item list-group-item-action d-flex align-items-center py-3 px-4">
+                        <div class="bg-primary bg-opacity-10 rounded-2 p-2 me-3 flex-shrink-0">
+                            <i class="fas fa-calendar-check text-primary"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold small">Attendance Summary</div>
+                            <div class="text-muted small">Present, absent, leave analysis</div>
+                        </div>
+                        <i class="fas fa-chevron-right text-muted small"></i>
+                    </a>
+                    <a href="/Reports/AccountsPayable" class="list-group-item list-group-item-action d-flex align-items-center py-3 px-4">
+                        <div class="bg-danger bg-opacity-10 rounded-2 p-2 me-3 flex-shrink-0">
+                            <i class="fas fa-file-invoice text-danger"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold small">Accounts Payable</div>
+                            <div class="text-muted small">Vendor dues & aging analysis</div>
+                        </div>
+                        <i class="fas fa-chevron-right text-muted small"></i>
+                    </a>
+                    <a href="/Reports/TDSReport" class="list-group-item list-group-item-action d-flex align-items-center py-3 px-4">
+                        <div class="bg-secondary bg-opacity-10 rounded-2 p-2 me-3 flex-shrink-0">
+                            <i class="fas fa-receipt text-secondary"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="fw-semibold small">TDS Report</div>
+                            <div class="text-muted small">TDS deducted / deposited</div>
+                        </div>
+                        <i class="fas fa-chevron-right text-muted small"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- AI Analytics Section -->
+<div class="card border-0 shadow-sm mt-4" style="background: linear-gradient(135deg, #0d1b2a, #1a3a5c)">
+    <div class="card-body py-4">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h5 class="text-white fw-bold mb-1">
+                    <i class="fas fa-brain me-2 text-warning"></i>AI-Powered Analytics
+                </h5>
+                <p class="text-white-50 mb-0">Cash flow forecasting, customer churn prediction, fraud detection, and loan eligibility — powered by machine learning on your own data.</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <a href="/Dashboard/AIInsights" class="btn btn-warning text-dark fw-semibold me-2">
+                    <i class="fas fa-robot me-1"></i>View AI Insights
+                </a>
+                <a href="/Reports/CashFlowForecast" class="btn btn-outline-light">
+                    <i class="fas fa-chart-line me-1"></i>Forecast
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+function downloadFinancialPdf() {
+    const from = $('#fromDate').val();
+    const to = $('#toDate').val();
+    if (!from || !to) { alert('Please select date range'); return; }
+    const btn = event.target;
+    $(btn).html('<i class="fas fa-spinner fa-spin me-1"></i>Generating...').prop('disabled', true);
+    const url = `/Reports/DownloadFinancialPdf?from=${from}&to=${to}`;
+    const a = document.createElement('a');
+    a.href = url; a.download = `FinancialReport_${from}_${to}.pdf`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    setTimeout(() => {
+        $(btn).html('<i class="fas fa-file-pdf me-1"></i>Download PDF').prop('disabled', false);
+    }, 3000);
+}
+
+function setDateRange(range) {
+    const now = new Date();
+    let from, to = now.toISOString().split('T')[0];
+    if (range === 'month') {
+        from = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+    } else if (range === 'quarter') {
+        const q = Math.floor(now.getMonth() / 3);
+        from = new Date(now.getFullYear(), q * 3, 1).toISOString().split('T')[0];
+    } else if (range === 'fy') {
+        const fyStart = now.getMonth() >= 3 ? now.getFullYear() : now.getFullYear() - 1;
+        from = `${fyStart}-04-01`;
+    }
+    $('#fromDate').val(from); $('#toDate').val(to);
+}
+</script>
+}
