@@ -71,6 +71,8 @@ public class AppDbContext : IdentityDbContext<ApplicationUser, IdentityRole<Guid
     public DbSet<ProductVariant> ProductVariants => Set<ProductVariant>();
     public DbSet<Warehouse> Warehouses => Set<Warehouse>();
     public DbSet<StockLedger> StockLedger => Set<StockLedger>();
+    public DbSet<StockMovement> StockMovements => Set<StockMovement>();
+    public DbSet<LedgerEntry> LedgerEntry => Set<LedgerEntry>();
     public DbSet<StockTransfer> StockTransfers => Set<StockTransfer>();
     public DbSet<StockTransferItem> StockTransferItems => Set<StockTransferItem>();
     public DbSet<BatchSerial> BatchSerials => Set<BatchSerial>();

@@ -258,3 +258,4 @@ D:\Vikas\MyProjects\MSMEDigitize\src\MSMEDigitize.API\obj\Debug\net9.0\refint\MS
 D:\Vikas\MyProjects\MSMEDigitize\src\MSMEDigitize.API\obj\Debug\net9.0\MSMEDigitize.API.pdb
 D:\Vikas\MyProjects\MSMEDigitize\src\MSMEDigitize.API\obj\Debug\net9.0\MSMEDigitize.API.genruntimeconfig.cache
 D:\Vikas\MyProjects\MSMEDigitize\src\MSMEDigitize.API\obj\Debug\net9.0\ref\MSMEDigitize.API.dll
+D:\Vikas\MyProjects\MSMEDigitize\src\MSMEDigitize.API\obj\Debug\net9.0\MSMEDigitize.API.sourcelink.json

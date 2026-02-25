@@ -1,0 +1,74 @@
+@model IEnumerable<MSMEDigitize.Core.Entities.Payroll.Attendance>
+@using MSMEDigitize.Core.Enums
+@{
+    ViewData["Title"] = "Attendance Summary"; Layout = "_Layout";
+    int month = ViewBag.Month ?? DateTime.Now.Month;
+    int year = ViewBag.Year ?? DateTime.Now.Year;
+    var empNames = ViewBag.EmployeeNames as Dictionary<Guid, string> ?? new();
+}
+<div class="page-header d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h3 mb-0">Attendance Summary — @(new DateTime(year, month, 1).ToString("MMMM yyyy"))</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="/Reports">Reports</a></li>
+                <li class="breadcrumb-item active">Attendance</li>
+            </ol>
+        </nav>
+    </div>
+    <form method="get" class="d-flex gap-2">
+        <select name="month" class="form-select form-select-sm" style="width:130px">
+            @for (int m = 1; m <= 12; m++)
+            {
+                <option value="@m" selected="@(m == month)">@(new DateTime(year, m, 1).ToString("MMMM"))</option>
+            }
+        </select>
+        <select name="year" class="form-select form-select-sm" style="width:90px">
+            @for (int y = DateTime.Now.Year; y >= DateTime.Now.Year - 1; y--)
+            {
+                <option value="@y" selected="@(y == year)">@y</option>
+            }
+        </select>
+        <button class="btn btn-sm btn-primary">View</button>
+    </form>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="bg-light">
+                <tr>
+                    <th class="ps-4">Employee</th>
+                    <th class="text-center text-success">Present</th>
+                    <th class="text-center text-danger">Absent</th>
+                    <th class="text-center text-warning">Half Day</th>
+                    <th class="text-center">Leave</th>
+                </tr>
+            </thead>
+            <tbody>
+                @{
+                    var list = Model?.ToList() ?? new();
+                    var grouped = list.GroupBy(a => a.EmployeeId).ToList();
+                }
+                @if (grouped.Any())
+                {
+                    @foreach (var grp in grouped)
+                    {
+                        var name = empNames.TryGetValue(grp.Key, out var n) ? n : grp.Key.ToString()[..8] + "…";
+                        <tr>
+                            <td class="ps-4 fw-semibold">@name</td>
+                            <td class="text-center fw-bold text-success">@grp.Count(a => a.Status == AttendanceStatus.Present)</td>
+                            <td class="text-center fw-bold text-danger">@grp.Count(a => a.Status == AttendanceStatus.Absent)</td>
+                            <td class="text-center fw-bold text-warning">@grp.Count(a => a.Status == AttendanceStatus.HalfDay)</td>
+                            <td class="text-center">@grp.Count(a => a.Status == AttendanceStatus.Leave)</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr><td colspan="5" class="text-center py-4 text-muted">No attendance records for this period.</td></tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

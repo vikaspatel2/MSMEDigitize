@@ -1,0 +1,31 @@
+@model IEnumerable<MSMEDigitize.Core.Entities.StockMovement>
+@{ ViewData["Title"] = "Stock Movement"; Layout = "_Layout"; }
+<div class="page-header mb-4">
+    <h1 class="h3 mb-0">Stock Movement</h1>
+    <nav aria-label="breadcrumb"><ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item"><a href="/Reports">Reports</a></li>
+        <li class="breadcrumb-item active">Stock Movement</li>
+    </ol></nav>
+</div>
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="bg-light">
+                <tr><th class="ps-4">Date</th><th>Product</th><th>Type</th><th class="text-end">Qty</th><th class="text-end">Prev Stock</th><th class="text-end">New Stock</th><th>Reference</th></tr>
+            </thead>
+            <tbody>
+                @foreach(var m in Model ?? Enumerable.Empty<MSMEDigitize.Core.Entities.StockMovement>()) {
+                    <tr>
+                        <td class="ps-4 small">@m.CreatedAt.ToString("dd MMM yyyy")</td>
+                        <td>@(m.Product?.Name ?? "—")</td>
+                        <td><span class="badge bg-secondary-subtle text-secondary">@m.Type</span></td>
+                        <td class="text-end fw-semibold @(m.Quantity>0?"text-success":"text-danger")">@(m.Quantity>0?"+":"")@m.Quantity</td>
+                        <td class="text-end text-muted">@m.PreviousStock</td>
+                        <td class="text-end fw-bold">@m.NewStock</td>
+                        <td class="small text-muted">@(m.ReferenceType ?? "—")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

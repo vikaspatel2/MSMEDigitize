@@ -34,3 +34,4 @@ D:\Vikas\MyProjects\MSMEDigitize\src\MSMEDigitize.Infrastructure\obj\Debug\net9.
 D:\Vikas\MyProjects\MSMEDigitize\src\MSMEDigitize.Infrastructure\obj\Debug\net9.0\MSMEDigitize.Infrastructure.pdb
 D:\Vikas\MyProjects\MSMEDigitize\src\MSMEDigitize.Infrastructure\obj\Debug\net9.0\MSMEDigitize.Infrastructure.genruntimeconfig.cache
 D:\Vikas\MyProjects\MSMEDigitize\src\MSMEDigitize.Infrastructure\obj\Debug\net9.0\ref\MSMEDigitize.Infrastructure.dll
+D:\Vikas\MyProjects\MSMEDigitize\src\MSMEDigitize.Infrastructure\obj\Debug\net9.0\MSMEDigitize.Infrastructure.sourcelink.json

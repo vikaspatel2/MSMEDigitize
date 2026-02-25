@@ -9,7 +9,6 @@ using MSMEDigitize.Core.Entities.Invoicing;
 using MSMEDigitize.Core.Entities.Payroll;
 using MSMEDigitize.Core.Enums;
 using MSMEDigitize.Core.Interfaces;
-using MSMEDigitize.Core.Interfaces;
 
 namespace MSMEDigitize.Web.Controllers;
 
@@ -107,6 +106,96 @@ public class ReportsController : Controller
         return File(ms.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
             $"SalesReport_{start:yyyyMMdd}_{end:yyyyMMdd}.xlsx");
     }
+
+    // ─── Report Actions (view links from Index) ──────────────────────────────
+
+    public async Task<IActionResult> Sales(DateTime? from, DateTime? to)
+    {
+        var start = from ?? DateTime.UtcNow.AddMonths(-1);
+        var end = to ?? DateTime.UtcNow;
+        var invoices = await _uow.Invoices.Query()
+            .Include(i => i.Customer)
+            .Where(i => i.TenantId == TenantId && i.InvoiceDate >= start && i.InvoiceDate <= end)
+            .OrderByDescending(i => i.InvoiceDate)
+            .ToListAsync();
+        ViewBag.From = start; ViewBag.To = end;
+        return View("SalesReport", invoices);
+    }
+
+    public async Task<IActionResult> SalesExcel(DateTime? from, DateTime? to) => await ExportSalesExcel(from, to);
+
+    public IActionResult Ledger() => View();
+    public IActionResult CashFlow() => View();
+    public IActionResult CashFlowForecast() => View();
+
+    public async Task<IActionResult> GSTR1(int month = 0, int year = 0)
+    {
+        if (month == 0) { month = DateTime.Now.Month; year = DateTime.Now.Year; }
+        var summary = await _invoiceService.GetGSTSummaryAsync(TenantId, month, year);
+        ViewBag.Month = month; ViewBag.Year = year;
+        return View(summary);
+    }
+
+    public async Task<IActionResult> GSTR3B(int month = 0, int year = 0)
+    {
+        if (month == 0) { month = DateTime.Now.Month; year = DateTime.Now.Year; }
+        var summary = await _invoiceService.GetGSTSummaryAsync(TenantId, month, year);
+        ViewBag.Month = month; ViewBag.Year = year;
+        return View(summary);
+    }
+
+    public IActionResult ITCReconciliation() => View();
+    public IActionResult HSNSummary() => View();
+    public IActionResult GSTFilingHistory() => View();
+    public IActionResult GSTPayables() => View();
+
+    public async Task<IActionResult> StockStatus()
+        => await StockReport();
+
+    public async Task<IActionResult> StockMovement()
+    {
+        var movements = await _uow.StockMovements.Query()
+            .Include(m => m.Product)
+            .Where(m => m.TenantId == TenantId)
+            .OrderByDescending(m => m.CreatedAt)
+            .Take(500)
+            .ToListAsync();
+        return View(movements);
+    }
+
+    public IActionResult PayrollSummary(int month = 0, int year = 0)
+    {
+        if (month == 0) { month = DateTime.Now.Month; year = DateTime.Now.Year; }
+        ViewBag.Month = month; ViewBag.Year = year;
+        return View();
+    }
+
+    public async Task<IActionResult> Attendance(int month = 0, int year = 0)
+    {
+        if (month == 0) { month = DateTime.Now.Month; year = DateTime.Now.Year; }
+        ViewBag.Month = month; ViewBag.Year = year;
+        var records = await _uow.Attendances.Query()
+            .Where(a => a.TenantId == TenantId && a.Date.Month == month && a.Date.Year == year)
+            .ToListAsync();
+        // Load employee names separately since Attendance has no nav property
+        var empIds = records.Select(a => a.EmployeeId).Distinct().ToList();
+        var employees = await _uow.Employees.Query()
+            .Where(e => empIds.Contains(e.Id))
+            .ToDictionaryAsync(e => e.Id, e => e.FullName);
+        ViewBag.EmployeeNames = employees;
+        return View(records);
+    }
+
+    public async Task<IActionResult> AccountsPayable()
+    {
+        var vendors = await _uow.Vendors.Query()
+            .Where(v => v.TenantId == TenantId && v.IsActive && v.CurrentOutstanding > 0)
+            .OrderByDescending(v => v.CurrentOutstanding)
+            .ToListAsync();
+        return View(vendors);
+    }
+
+    public IActionResult TDSReport() => View();
 
     // ─── PDF Download Actions ────────────────────────────────────────────────
 

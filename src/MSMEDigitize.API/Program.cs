@@ -3,8 +3,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using MSMEDigitize.Core.Entities;
 using MSMEDigitize.Core.Interfaces;
-using MSMEDigitize.Application.Services;
 using MSMEDigitize.Infrastructure;
+using MSMEDigitize.Infrastructure.Services;
+
 //using MSMEDigitize.Web.Middlewares;
 using System.Text;
 

@@ -15,7 +15,6 @@ using MSMEDigitize.Infrastructure.Messaging.RabbitMQ;
 using RabbitMQ.Client;
 using MSMEDigitize.Infrastructure.Services;
 using MSMEDigitize.Infrastructure.Security;
-using SmsService = MSMEDigitize.Infrastructure.ExternalServices.SmsService;
 
 namespace MSMEDigitize.Infrastructure;
 
@@ -59,7 +58,12 @@ public static class DependencyInjection
 
         // ── External Communication Services ───────────────────────────────────
         services.AddScoped<IEmailService, SmtpEmailService>();  // No external packages needed; configure via appsettings Smtp section
-        services.AddScoped<ISmsService, SmsService>();
+        // Register SmsService only if Twilio is configured; otherwise use no-op stub
+        var twilioSid = config["Twilio:AccountSid"];
+        if (!string.IsNullOrWhiteSpace(twilioSid))
+            services.AddScoped<ISmsService, MSMEDigitize.Infrastructure.Services.SmsService>();
+        else
+            services.AddScoped<ISmsService, NullSmsService>();
         services.AddScoped<IPaymentGatewayService, RazorpayPaymentService>();
         // ── Message Bus (RabbitMQ) ─────────────────────────────────────────────
         var rabbitHost = config.GetConnectionString("RabbitMQ") ?? config["RabbitMQ:Host"];
@@ -108,15 +112,15 @@ public static class DependencyInjection
         // ── Core Business Services ────────────────────────────────────────────
         services.AddScoped<INotificationService, NotificationServiceImpl>();
         services.AddScoped<IPDFService, PDFServiceImpl>();
-        //services.AddScoped<IPdfService, PDFServiceImpl>();
+        services.AddScoped<IPdfService, PDFServiceImpl>(); // IPdfService : IPDFService
         services.AddScoped<IGSTService, GSTServiceImpl>();
         services.AddScoped<IAIService, AIServiceImpl>();
         services.AddScoped<IBankingService, BankingServiceImpl>();
-        //services.AddScoped<IInvoiceService, InvoiceService>();
+        services.AddScoped<IInvoiceService, MSMEDigitize.Infrastructure.Services.InvoiceService>();
         services.AddScoped<ISubscriptionService, SubscriptionService>();
         services.AddScoped<IAnalyticsService, AnalyticsService>();
         services.AddScoped<IAuthService, AuthService>();
-        //services.AddScoped<IPayrollService, PayrollService>();
+        services.AddScoped<IPayrollService, PayrollService>();
         services.AddScoped<ITokenService, JwtTokenService>();
 
         // ── Hangfire ──────────────────────────────────────────────────────────
@@ -149,15 +153,15 @@ public static class DependencyInjection
         return services;
     }
 
-    //public static void RegisterRecurringJobs()
-    //{
-    //    RecurringJob.AddOrUpdate<InvoiceReminderJob>("invoice-overdue-reminders",
-    //        j => j.SendOverdueRemindersAsync(), Cron.Daily(9), queue: "default");
-    //    RecurringJob.AddOrUpdate<LowStockAlertJob>("low-stock-check",
-    //        j => j.CheckLowStockAsync(), Cron.Daily(8), queue: "default");
-    //    RecurringJob.AddOrUpdate<SubscriptionRenewalJob>("subscription-renewal",
-    //        j => j.ProcessExpiringSubscriptionsAsync(), Cron.Daily(7), queue: "critical");
-    //    RecurringJob.AddOrUpdate<GSTReminderJob>("gst-reminders",
-    //        j => j.SendGSTFilingRemindersAsync(), "0 9 1,7,11,18,20 * *", queue: "default");
-    //}
+    public static void RegisterRecurringJobs()
+    {
+        RecurringJob.AddOrUpdate<InvoiceReminderJob>("invoice-overdue-reminders",
+            j => j.SendOverdueRemindersAsync(), Cron.Daily(9), queue: "default");
+        RecurringJob.AddOrUpdate<LowStockAlertJob>("low-stock-check",
+            j => j.CheckLowStockAsync(), Cron.Daily(8), queue: "default");
+        RecurringJob.AddOrUpdate<SubscriptionRenewalJob>("subscription-renewal",
+            j => j.ProcessExpiringSubscriptionsAsync(), Cron.Daily(7), queue: "critical");
+        RecurringJob.AddOrUpdate<GSTReminderJob>("gst-reminders",
+            j => j.SendGSTFilingRemindersAsync(), "0 9 1,7,11,18,20 * *", queue: "default");
+    }
 }

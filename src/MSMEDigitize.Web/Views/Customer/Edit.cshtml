@@ -1,0 +1,57 @@
+@model MSMEDigitize.Core.Entities.Invoicing.Customer
+@{ ViewData["Title"] = "Edit Customer"; Layout = "_Layout"; }
+
+<div class="page-header d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h3 mb-0">Edit Customer</h1>
+        <nav aria-label="breadcrumb"><ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="/Customer">Customers</a></li>
+            <li class="breadcrumb-item active">Edit</li>
+        </ol></nav>
+    </div>
+</div>
+<div class="card border-0 shadow-sm" style="max-width:800px">
+    <div class="card-body p-4">
+        <form asp-action="Edit" method="post">
+            @Html.AntiForgeryToken()
+            <input asp-for="Id" type="hidden" />
+            <input asp-for="TenantId" type="hidden" />
+            <input asp-for="Code" type="hidden" />
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Name <span class="text-danger">*</span></label>
+                    <input asp-for="Name" class="form-control" required />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Contact Person</label>
+                    <input asp-for="ContactPerson" class="form-control" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Email</label>
+                    <input asp-for="Email" type="email" class="form-control" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Phone <span class="text-danger">*</span></label>
+                    <input asp-for="Phone" class="form-control" required />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">GSTIN</label>
+                    <input asp-for="GSTIN" class="form-control font-monospace" maxlength="15" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Credit Limit (₹)</label>
+                    <input asp-for="CreditLimit" type="number" step="0.01" class="form-control" />
+                </div>
+                <div class="col-12">
+                    <label class="form-label fw-semibold">Notes</label>
+                    <textarea asp-for="Notes" class="form-control" rows="2"></textarea>
+                </div>
+            </div>
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-primary px-4"><i class="fas fa-save me-2"></i>Update</button>
+                <a href="/Customer" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }

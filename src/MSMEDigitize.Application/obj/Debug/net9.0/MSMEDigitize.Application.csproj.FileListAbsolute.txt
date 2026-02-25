@@ -34,3 +34,4 @@ D:\Vikas\MyProjects\MSMEDigitize\src\MSMEDigitize.Application\obj\Debug\net9.0\M
 D:\Vikas\MyProjects\MSMEDigitize\src\MSMEDigitize.Application\obj\Debug\net9.0\refint\MSMEDigitize.Application.dll
 D:\Vikas\MyProjects\MSMEDigitize\src\MSMEDigitize.Application\obj\Debug\net9.0\MSMEDigitize.Application.pdb
 D:\Vikas\MyProjects\MSMEDigitize\src\MSMEDigitize.Application\obj\Debug\net9.0\ref\MSMEDigitize.Application.dll
+D:\Vikas\MyProjects\MSMEDigitize\src\MSMEDigitize.Application\obj\Debug\net9.0\MSMEDigitize.Application.sourcelink.json

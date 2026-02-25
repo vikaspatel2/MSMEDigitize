@@ -1,0 +1,145 @@
+@model MSMEDigitize.Core.Entities.Payroll.Employee
+@{ ViewData["Title"] = "Add Employee"; Layout = "_Layout"; }
+
+<div class="page-header d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h3 mb-0">Add Employee</h1>
+        <nav aria-label="breadcrumb"><ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="/Employee">Employees</a></li>
+            <li class="breadcrumb-item active">Add</li>
+        </ol></nav>
+    </div>
+</div>
+
+<div class="card border-0 shadow-sm" style="max-width:900px">
+    <div class="card-body p-4">
+        <form asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Full Name <span class="text-danger">*</span></label>
+                    <input asp-for="FullName" class="form-control" required />
+                    <span asp-validation-for="FullName" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Email <span class="text-danger">*</span></label>
+                    <input asp-for="Email" type="email" class="form-control" required />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Phone</label>
+                    <input asp-for="Phone" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Date of Joining <span class="text-danger">*</span></label>
+                    <input asp-for="JoiningDate" type="date" class="form-control" required />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Date of Birth</label>
+                    <input asp-for="DateOfBirth" type="date" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Gender</label>
+                    <select asp-for="Gender" class="form-select">
+                        <option value="">— Select —</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Employment Type</label>
+                    <select asp-for="EmploymentType" class="form-select">
+                        <option value="Permanent">Permanent</option>
+                        <option value="Contract">Contract</option>
+                        <option value="Intern">Intern</option>
+                        <option value="Part-time">Part-time</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Work Location</label>
+                    <input asp-for="WorkLocation" class="form-control" placeholder="Office, Remote, Hybrid" />
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Department</label>
+                    <select asp-for="DepartmentGuid" class="form-select">
+                        <option value="">— Select Department —</option>
+                        @if (ViewBag.Departments != null) {
+                            @foreach (var d in (IEnumerable<MSMEDigitize.Core.Entities.Department>)ViewBag.Departments) {
+                                <option value="@d.Id">@d.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Designation</label>
+                    <select asp-for="DesignationGuid" class="form-select">
+                        <option value="">— Select Designation —</option>
+                        @if (ViewBag.Designations != null) {
+                            @foreach (var d in (IEnumerable<MSMEDigitize.Core.Entities.Designation>)ViewBag.Designations) {
+                                <option value="@d.Id">@d.Name</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-12"><hr class="my-1" /><p class="text-muted small mb-1">Salary Structure</p></div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Basic Salary (₹)</label>
+                    <input asp-for="BasicSalary" type="number" step="0.01" class="form-control" value="0" id="basic" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">HRA (₹)</label>
+                    <input asp-for="HRA" type="number" step="0.01" class="form-control" value="0" id="hra" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Special Allowance (₹)</label>
+                    <input asp-for="SpecialAllowance" type="number" step="0.01" class="form-control" value="0" id="special" />
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold">Gross Salary (₹)</label>
+                    <input asp-for="GrossSalary" type="number" step="0.01" class="form-control" id="gross" readonly />
+                </div>
+                <div class="col-12"><hr class="my-1" /><p class="text-muted small mb-1">Bank & Compliance</p></div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Bank Account No.</label>
+                    <input asp-for="BankAccountNumber" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">IFSC Code</label>
+                    <input asp-for="IFSC" class="form-control font-monospace" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">PAN</label>
+                    <input asp-for="PAN" class="form-control font-monospace" maxlength="10" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Aadhaar Number</label>
+                    <input asp-for="Aadhaar" class="form-control font-monospace" maxlength="12" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">PF Account No.</label>
+                    <input asp-for="PFAccountNumber" class="form-control" />
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Father's Name</label>
+                    <input asp-for="FatherName" class="form-control" />
+                </div>
+            </div>
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-primary px-4"><i class="fas fa-save me-2"></i>Save Employee</button>
+                <a href="/Employee" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+@section Scripts {
+<partial name="_ValidationScriptsPartial" />
+<script>
+function calcGross() {
+    const b = parseFloat($('#basic').val()) || 0;
+    const h = parseFloat($('#hra').val()) || 0;
+    const s = parseFloat($('#special').val()) || 0;
+    $('#gross').val((b + h + s).toFixed(2));
+}
+$('#basic,#hra,#special').on('input', calcGross);
+</script>
+}

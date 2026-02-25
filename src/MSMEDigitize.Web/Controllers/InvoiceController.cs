@@ -12,7 +12,6 @@ using MSMEDigitize.Core.Entities.Subscriptions;
 using MSMEDigitize.Core.Entities.Tenants;
 using MSMEDigitize.Core.Enums;
 using MSMEDigitize.Core.Interfaces;
-using MSMEDigitize.Core.Interfaces;
 using MSMEDigitize.Web.ViewModels;
 
 namespace MSMEDigitize.Web.Controllers;
@@ -43,9 +42,14 @@ public class InvoiceController : Controller
     {
         var customers = await _uow.Customers.FindAsync(c => c.TenantId == TenantId && c.IsActive);
         var products = await _uow.Products.FindAsync(p => p.TenantId == TenantId && p.IsActive);
-        ViewBag.Customers = customers;
-        ViewBag.Products = products;
-        return View(new InvoiceViewModel { InvoiceDate = DateTime.Today, DueDate = DateTime.Today.AddDays(30) });
+        var vm = new InvoiceViewModel
+        {
+            InvoiceDate = DateTime.Today,
+            DueDate = DateTime.Today.AddDays(30),
+            Customers = customers.Select(c => new CustomerDropdown(c.Id, c.Name, c.GSTIN ?? "", c.BillingAddress?.State ?? "", c.Email ?? "", c.Phone, 30)).ToList(),
+            Products = products.Select(p => new ProductDropdown(p.Id, p.Name, p.SellingPrice, p.GSTRate, p.HSNCode ?? "", p.Unit.ToString())).ToList()
+        };
+        return View(vm);
     }
 
     [HttpPost]
@@ -54,38 +58,43 @@ public class InvoiceController : Controller
     {
         if (!ModelState.IsValid) return View(model);
 
-        var invoice = new Invoice
+        var dto = new MSMEDigitize.Application.DTOs.CreateInvoiceDto
         {
-            TenantId = TenantId,
-            //CustomerId = model.CustomerId,
-            //InvoiceDate = model.InvoiceDate,
-            //DueDate = model.DueDate,
-            //Notes = model.Notes,
-            //TermsAndConditions = model.TermsAndConditions,
-            //PlaceOfSupply = model.PlaceOfSupply,
-            //IsInterState = model.IsInterState,
-            //DiscountAmount = model.DiscountAmount,
+            CustomerId = model.CustomerId ?? Guid.Empty,
             Type = model.Type,
-            Status = InvoiceStatus.Draft
+            InvoiceDate = model.InvoiceDate,
+            DueDate = model.DueDate ?? model.InvoiceDate.AddDays(30),
+            IsInterState = model.IsInterState,
+            Notes = model.Notes,
+            PoNumber = model.PoNumber,
+            TermsAndConditions = model.TermsAndConditions,
+            LineItems = model.LineItems.Select(li => new MSMEDigitize.Application.DTOs.CreateInvoiceLineItemDto
+            {
+                ProductId = li.ProductId,
+                ItemName = li.Description,
+                Description = li.Description,
+                HSNSACCode = li.HSNSACCode,
+                Quantity = li.Quantity,
+                Unit = li.Unit,
+                UnitPrice = li.UnitPrice,
+                DiscountPercent = li.DiscountAmount,
+                GSTRate = li.GSTRate,
+                CessRate = li.CessRate,
+            }).ToList()
         };
 
-        //var lineItems = model.LineItems.Select((li, idx) => new InvoiceLineItem
-        //{
-        //    ProductId = li.ProductId,
-        //    Description = li.Description,
-        //    HSNSACCode = li.HSNSACCode,
-        //    Quantity = li.Quantity,
-        //    Unit = li.Unit,
-        //    UnitPrice = li.UnitPrice,
-        //    DiscountPercent = li.DiscountPercent,
-        //    GSTRate = li.GSTRate,
-        //    CessRate = li.CessRate,
-        //    SortOrder = idx
-        //}).ToList();
+        var result = await _invoiceService.CreateInvoiceAsync(TenantId, dto);
+        if (!result.IsSuccess)
+        {
+            ModelState.AddModelError("", result.Error ?? "Failed to create invoice.");
+            return View(model);
+        }
 
-        // var created = await _invoiceService.CreateInvoiceAsync(invoice, lineItems);
-        //TempData["Success"] = $"Invoice {created.InvoiceNumber} created successfully!";
-        return RedirectToAction("Details");//, new { id = created.Id });
+        var inv = result.Value as Invoice;
+        TempData["Success"] = $"Invoice {inv?.InvoiceNumber ?? ""} created successfully!";
+        return inv != null
+            ? RedirectToAction("Details", new { id = inv.Id })
+            : RedirectToAction("Index");
     }
 
     public async Task<IActionResult> Details(Guid id)
@@ -98,31 +107,17 @@ public class InvoiceController : Controller
     [HttpPost]
     public async Task<IActionResult> Send(Guid id)
     {
-        var result = await _invoiceService.SendInvoiceAsync(id, TenantId);
-        //TempData[result ? "Success" : "Error"] = result ? "Invoice sent!" : "Failed to send.";
+        var sendResult = await _invoiceService.SendInvoiceAsync(id, TenantId);
+        TempData[sendResult.IsSuccess ? "Success" : "Error"] = sendResult.IsSuccess ? "Invoice sent!" : "Failed to send.";
         return RedirectToAction("Details", new { id });
     }
 
-    //[HttpPost]
-    //public async Task<IActionResult> RecordPayment(Guid id, decimal amount, PaymentMethod method, string? reference)
-    //{
-    //    var result = await _invoiceService.RecordPaymentAsync(id, amount, method, reference);
-    //    TempData[result ? "Success" : "Error"] = result ? $"Payment ₹{amount:N0} recorded!" : "Payment failed.";
-    //    return RedirectToAction("Details", new { id });
-    //}
     [HttpPost]
-    public async Task<IActionResult> RecordPayment(
-    Guid id,
-    decimal amount,
-    CancellationToken ct)
+    public async Task<IActionResult> RecordPayment(Guid id, decimal amount, PaymentMethod method, string? reference)
     {
-        var result = await _invoiceService.RecordPaymentAsync(id, amount, ct);
-
-        TempData[result.IsSuccess ? "Success" : "Error"] =
-            result.IsSuccess
-                ? $"Payment ₹{amount:N0} recorded!"
-                : result.Error;
-
+        var dto = new MSMEDigitize.Application.DTOs.RecordPaymentDto { InvoiceId = id, Amount = amount, Mode = (MSMEDigitize.Core.Enums.PaymentMode)(int)method, PaymentDate = DateTime.UtcNow, TransactionId = reference };
+        var result = await _invoiceService.RecordPaymentAsync(TenantId, dto);
+        TempData[result.IsSuccess ? "Success" : "Error"] = result.IsSuccess ? $"Payment ₹{amount:N0} recorded!" : "Payment failed.";
         return RedirectToAction("Details", new { id });
     }
 
@@ -130,7 +125,8 @@ public class InvoiceController : Controller
     {
         var pdf = await _invoiceService.GeneratePDFAsync(id, TenantId);
         var invoice = await _invoiceService.GetInvoiceAsync(id, TenantId);
-        return File(pdf, "application/pdf");//, $"Invoice-{invoice?.InvoiceNumber}.pdf");
+        var inv = invoice as MSMEDigitize.Core.Entities.Invoicing.Invoice;
+        return File(pdf, "application/pdf", $"Invoice-{inv?.InvoiceNumber}.pdf");
     }
 
     public async Task<IActionResult> GSTReport(int month, int year)

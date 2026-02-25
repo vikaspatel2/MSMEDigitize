@@ -264,3 +264,4 @@ D:\Vikas\MyProjects\MSMEDigitize\src\MSMEDigitize.Web\obj\Debug\net9.0\MSMEDigit
 D:\Vikas\MyProjects\MSMEDigitize\src\MSMEDigitize.Web\obj\Debug\net9.0\MSMEDigitize.Web.genruntimeconfig.cache
 D:\Vikas\MyProjects\MSMEDigitize\src\MSMEDigitize.Web\obj\Debug\net9.0\ref\MSMEDigitize.Web.dll
 D:\Vikas\MyProjects\MSMEDigitize\src\MSMEDigitize.Web\obj\Debug\net9.0\staticwebassets.upToDateCheck.txt
+D:\Vikas\MyProjects\MSMEDigitize\src\MSMEDigitize.Web\obj\Debug\net9.0\MSMEDigitize.Web.sourcelink.json

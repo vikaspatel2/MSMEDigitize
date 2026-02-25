@@ -2334,8 +2334,7 @@
           "FluentValidation": "11.9.0",
           "MSMEDigitize.Core": "1.0.0",
           "MSMEDigitize.Infrastructure": "1.0.0",
-          "MediatR": "12.3.0",
-          "RabbitMQ.Client": "7.2.0"
+          "MediatR": "12.3.0"
         },
         "runtime": {
           "MSMEDigitize.Application.dll": {

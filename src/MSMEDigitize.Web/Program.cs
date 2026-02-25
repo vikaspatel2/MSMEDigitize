@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using MSMEDigitize.Core.Entities;
 using MSMEDigitize.Core.Interfaces;
-using MSMEDigitize.Application.Services;
 using MSMEDigitize.Infrastructure;
 using MSMEDigitize.Infrastructure.Data;
 using MSMEDigitize.Web.Filters;
@@ -12,6 +11,7 @@ using MSMEDigitize.Web.Middlewares;
 using Serilog;
 using System.Text;
 using MSMEDigitize.Web;
+using MSMEDigitize.Infrastructure.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,28 +19,16 @@ var builder = WebApplication.CreateBuilder(args);
 Log.Logger = new LoggerConfiguration()
     .ReadFrom.Configuration(builder.Configuration)
     .Enrich.FromLogContext()
-    //.Enrich.WithMachineName()
     .WriteTo.Console()
-    //.WriteTo.MSSqlServer(
-    //    connectionString: builder.Configuration.GetConnectionString("DefaultConnection"),
-    //    tableName: "Logs",
-    //    autoCreateSqlTable: true)
     .CreateLogger();
 
 builder.Host.UseSerilog();
 
-// Infrastructure
+// Infrastructure (includes Hangfire registration internally)
 builder.Services.AddInfrastructure(builder.Configuration);
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-
-builder.Services.AddHangfire(config =>
-    config.UseSqlServerStorage(connectionString));
-
-builder.Services.AddHangfireServer();
 // Core Services
 builder.Services.AddScoped<IInvoiceService, InvoiceService>();
-//builder.Services.AddScoped<IPayrollService, PayrollService>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 
@@ -53,7 +41,7 @@ builder.Services.AddControllersWithViews(options => {
 // AutoMapper
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
-// JWT Authentication (for API)
+// JWT Authentication
 var jwtKey = builder.Configuration["Jwt:Secret"]!;
 builder.Services.AddAuthentication(options => {
     options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -66,7 +54,7 @@ builder.Services.AddAuthentication(options => {
     options.SlidingExpiration = true;
     options.ExpireTimeSpan = TimeSpan.FromDays(7);
     options.Cookie.HttpOnly = true;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
     options.Cookie.SameSite = SameSiteMode.Strict;
 })
 .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options => {
@@ -92,13 +80,8 @@ builder.Services.AddAuthorization(options => {
     options.AddPolicy("SuperAdminOnly", p => p.RequireRole("SuperAdmin"));
 });
 
-// Rate Limiting
 builder.Services.AddMemoryCache();
-
-// SignalR for real-time notifications
 builder.Services.AddSignalR();
-
-// Response compression
 builder.Services.AddResponseCompression();
 
 var app = builder.Build();
@@ -139,12 +122,22 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 app.MapHub<NotificationHub>("/hubs/notifications");
 
-// Seed & recurring jobs
+// Seed database
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     await DbSeeder.SeedAsync(db);
 }
-//DependencyInjection.RegisterRecurringJobs();
+
+// Register Hangfire recurring jobs AFTER app is built and Hangfire schema is ready
+// Wrapped in try/catch so a Hangfire DB issue won't crash the whole app
+//try
+//{
+//    DependencyInjection.RegisterRecurringJobs();
+//}
+//catch (Exception ex)
+//{
+//    Log.Warning(ex, "Could not register Hangfire recurring jobs - Hangfire schema may not be ready yet. Jobs will be registered on next startup.");
+//}
 
 app.Run();

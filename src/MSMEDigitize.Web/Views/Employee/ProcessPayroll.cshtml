@@ -1,0 +1,85 @@
+@model (IEnumerable<MSMEDigitize.Core.Entities.Payroll.Payslip>, object)
+@{ ViewData["Title"] = "Process Payroll"; Layout = "_Layout";
+   int month = ViewBag.Month; int year = ViewBag.Year;
+   var payslips = Model.Item1?.ToList() ?? new(); }
+
+<div class="page-header d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h3 mb-0">Payroll — @(new DateTime(year, month, 1).ToString("MMMM yyyy"))</h1>
+        <nav aria-label="breadcrumb"><ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="/Employee">Employees</a></li>
+            <li class="breadcrumb-item active">Payroll</li>
+        </ol></nav>
+    </div>
+    <form method="get" class="d-flex gap-2 align-items-center">
+        <select name="month" class="form-select form-select-sm" style="width:130px">
+            @for (int m = 1; m <= 12; m++) {
+                <option value="@m" selected="@(m == month)">@(new DateTime(year, m, 1).ToString("MMMM"))</option>
+            }
+        </select>
+        <select name="year" class="form-select form-select-sm" style="width:90px">
+            @for (int y = DateTime.Now.Year; y >= DateTime.Now.Year - 2; y--) {
+                <option value="@y" selected="@(y == year)">@y</option>
+            }
+        </select>
+        <button class="btn btn-sm btn-primary">Process</button>
+    </form>
+</div>
+
+@if (TempData["Success"] != null) { <div class="alert alert-success">@TempData["Success"]</div> }
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="bg-light">
+                <tr>
+                    <th class="ps-4">Employee</th>
+                    <th class="text-end">Basic</th>
+                    <th class="text-end">HRA</th>
+                    <th class="text-end">Gross</th>
+                    <th class="text-end">Deductions</th>
+                    <th class="text-end">Net Pay</th>
+                    <th class="text-center">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (payslips.Any()) {
+                    @foreach (var p in payslips) {
+                    <tr>
+                        <td class="ps-4 fw-semibold">@p.Employee?.FullName</td>
+                        <td class="text-end">₹@p.BasicSalary.ToString("N0")</td>
+                        <td class="text-end">₹@p.HRA.ToString("N0")</td>
+                        <td class="text-end fw-semibold">₹@p.GrossSalary.ToString("N0")</td>
+                        <td class="text-end text-danger">₹@p.TotalDeductions.ToString("N0")</td>
+                        <td class="text-end fw-bold text-success">₹@p.NetSalary.ToString("N0")</td>
+                        <td class="text-center">
+                            @{ var isDisbursed = p.Status.ToString() == "Paid" || p.IsDisbursed; }
+                            <span class="badge bg-@(isDisbursed ? "success" : "warning")-subtle text-@(isDisbursed ? "success" : "warning")">
+                                @(isDisbursed ? "Paid" : "Pending")
+                            </span>
+                        </td>
+                    </tr>
+                    }
+                } else {
+                    <tr><td colspan="7" class="text-center py-5 text-muted">
+                        <i class="fas fa-money-bill-wave fa-3x mb-3 d-block"></i>
+                        No payroll data for this period. Click Process to generate.
+                    </td></tr>
+                }
+            </tbody>
+            @if (payslips.Any()) {
+            <tfoot class="bg-light fw-bold">
+                <tr>
+                    <td class="ps-4">Total</td>
+                    <td class="text-end">₹@payslips.Sum(p => p.BasicSalary).ToString("N0")</td>
+                    <td class="text-end">₹@payslips.Sum(p => p.HRA).ToString("N0")</td>
+                    <td class="text-end">₹@payslips.Sum(p => p.GrossSalary).ToString("N0")</td>
+                    <td class="text-end text-danger">₹@payslips.Sum(p => p.TotalDeductions).ToString("N0")</td>
+                    <td class="text-end text-success">₹@payslips.Sum(p => p.NetSalary).ToString("N0")</td>
+                    <td></td>
+                </tr>
+            </tfoot>
+            }
+        </table>
+    </div>
+</div>

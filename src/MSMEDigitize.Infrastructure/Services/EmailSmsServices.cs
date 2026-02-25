@@ -1,4 +1,5 @@
-﻿// EmailService.cs and SmsService.cs — Fixed v6
+﻿using MSMEDigitize.Core.Common;
+// EmailService.cs and SmsService.cs — Fixed v6
 // These concrete classes implement IEmailService and ISmsService by
 // delegating to SendGrid and Twilio respectively.
 using Microsoft.Extensions.Configuration;
@@ -155,4 +156,22 @@ public class SmsService : ISmsService
         }
         return Task.CompletedTask;
     }
+}
+
+// ─── Null SMS Service (used when Twilio is not configured) ────────────────────
+public class NullSmsService : ISmsService
+{
+    private readonly ILogger<NullSmsService> _logger;
+    public NullSmsService(ILogger<NullSmsService> logger) { _logger = logger; }
+
+    public Task SendSmsAsync(string phone, string message)
+    { _logger.LogDebug("NullSmsService: SMS to {Phone} suppressed", phone); return Task.CompletedTask; }
+    public Task SendOTPAsync(string phone, string otp)
+    { _logger.LogDebug("NullSmsService: OTP to {Phone} suppressed", phone); return Task.CompletedTask; }
+    public Task SendPaymentReminderAsync(string phone, string customerName, decimal amount, string invoiceNumber)
+    { _logger.LogDebug("NullSmsService: Payment reminder to {Phone} suppressed", phone); return Task.CompletedTask; }
+    public Task SendInvoiceLinkAsync(string phone, string customerName, string invoiceLink)
+    { _logger.LogDebug("NullSmsService: Invoice link to {Phone} suppressed", phone); return Task.CompletedTask; }
+    public Task SendWhatsAppAsync(string phone, string message, string? templateName = null)
+    { _logger.LogDebug("NullSmsService: WhatsApp to {Phone} suppressed", phone); return Task.CompletedTask; }
 }

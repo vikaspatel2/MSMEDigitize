@@ -1,0 +1,150 @@
+@model object
+@{ 
+    ViewData["Title"] = "GST Report";
+    Layout = "_Layout";
+    int month = ViewBag.Month ?? DateTime.Now.Month;
+    int year  = ViewBag.Year  ?? DateTime.Now.Year;
+    var summary = Model as dynamic;
+}
+
+<div class="page-header d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h3 mb-0">GST Report — @(new DateTime(year, month, 1).ToString("MMMM yyyy"))</h1>
+        <nav aria-label="breadcrumb"><ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="/Dashboard">Dashboard</a></li>
+            <li class="breadcrumb-item active">GST Report</li>
+        </ol></nav>
+    </div>
+    <form method="get" class="d-flex gap-2 align-items-center">
+        <select name="month" class="form-select form-select-sm" style="width:130px">
+            @for (int m = 1; m <= 12; m++) {
+                <option value="@m" selected="@(m == month)">
+                    @(new DateTime(year, m, 1).ToString("MMMM"))
+                </option>
+            }
+        </select>
+        <select name="year" class="form-select form-select-sm" style="width:90px">
+            @for (int y = DateTime.Now.Year; y >= DateTime.Now.Year - 3; y--) {
+                <option value="@y" selected="@(y == year)">@y</option>
+            }
+        </select>
+        <button class="btn btn-sm btn-primary">View</button>
+    </form>
+</div>
+
+<!-- Summary Cards -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <p class="text-muted small mb-1">Total Taxable Value</p>
+                <h4 class="fw-bold mb-0" id="taxableVal">—</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <p class="text-muted small mb-1">Total CGST</p>
+                <h4 class="fw-bold mb-0 text-primary" id="cgstVal">—</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <p class="text-muted small mb-1">Total SGST</p>
+                <h4 class="fw-bold mb-0 text-info" id="sgstVal">—</h4>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <p class="text-muted small mb-1">Total IGST</p>
+                <h4 class="fw-bold mb-0 text-warning" id="igstVal">—</h4>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Raw summary data -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-transparent fw-semibold py-3 d-flex justify-content-between">
+        <span>GST Summary</span>
+        <div class="d-flex gap-2">
+            <a href="/Invoice/GSTReport/@year/@month/export" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-download me-1"></i>Export GSTR-1
+            </a>
+        </div>
+    </div>
+    <div class="card-body">
+        @if (Model != null) {
+            <pre class="bg-light p-3 rounded small" id="summaryJson">@System.Text.Json.JsonSerializer.Serialize(Model, new System.Text.Json.JsonSerializerOptions { WriteIndented = true })</pre>
+        } else {
+            <div class="text-center py-5 text-muted">
+                <i class="fas fa-receipt fa-3x mb-3 d-block"></i>
+                <p>No GST data found for @(new DateTime(year, month, 1).ToString("MMMM yyyy")).</p>
+                <p class="small">Create and send invoices to see GST reports here.</p>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Filing Deadlines -->
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-transparent fw-semibold py-3">Filing Deadlines</div>
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead class="bg-light">
+                <tr><th class="ps-4">Return</th><th>Period</th><th>Due Date</th><th class="text-center">Status</th></tr>
+            </thead>
+            <tbody>
+                @{
+                    var dueMonth = month == 12 ? 1 : month + 1;
+                    var dueYear  = month == 12 ? year + 1 : year;
+                    var gstr1Due = new DateTime(dueYear, dueMonth, 11);
+                    var gstr3bDue = new DateTime(dueYear, dueMonth, 20);
+                    var today = DateTime.Today;
+                }
+                <tr>
+                    <td class="ps-4 fw-semibold">GSTR-1</td>
+                    <td>@(new DateTime(year, month, 1).ToString("MMMM yyyy"))</td>
+                    <td>@gstr1Due.ToString("dd MMM yyyy")</td>
+                    <td class="text-center">
+                        <span class="badge bg-@(today > gstr1Due ? "danger" : "success")-subtle text-@(today > gstr1Due ? "danger" : "success")">
+                            @(today > gstr1Due ? "Overdue" : "Upcoming")
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td class="ps-4 fw-semibold">GSTR-3B</td>
+                    <td>@(new DateTime(year, month, 1).ToString("MMMM yyyy"))</td>
+                    <td>@gstr3bDue.ToString("dd MMM yyyy")</td>
+                    <td class="text-center">
+                        <span class="badge bg-@(today > gstr3bDue ? "danger" : "success")-subtle text-@(today > gstr3bDue ? "danger" : "success")">
+                            @(today > gstr3bDue ? "Overdue" : "Upcoming")
+                        </span>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+// Parse summary and populate KPI cards if data exists
+try {
+    const raw = document.getElementById('summaryJson')?.textContent;
+    if (raw) {
+        const data = JSON.parse(raw);
+        const fmt = n => '₹' + (parseFloat(n) || 0).toLocaleString('en-IN', {minimumFractionDigits: 2});
+        document.getElementById('taxableVal').textContent = fmt(data.totalTaxableValue ?? data.TotalTaxableValue ?? 0);
+        document.getElementById('cgstVal').textContent    = fmt(data.totalCGST ?? data.TotalCGST ?? 0);
+        document.getElementById('sgstVal').textContent    = fmt(data.totalSGST ?? data.TotalSGST ?? 0);
+        document.getElementById('igstVal').textContent    = fmt(data.totalIGST ?? data.TotalIGST ?? 0);
+    }
+} catch(e) {}
+</script>
+}

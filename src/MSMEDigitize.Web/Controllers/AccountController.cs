@@ -47,51 +47,95 @@ public class AccountController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
     {
-        if (!ModelState.IsValid) return View(model);
+        if (!ModelState.IsValid)
+            return View(model);
 
+        //  Find user
         var user = await _userManager.FindByEmailAsync(model.Email);
+
         if (user == null || !user.IsActive)
         {
             ModelState.AddModelError("", "Invalid credentials.");
             return View(model);
         }
 
-        var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, lockoutOnFailure: true);
+        //  Check password
+        var result = await _signInManager.CheckPasswordSignInAsync(
+            user,
+            model.Password,
+            lockoutOnFailure: true);
+
         if (!result.Succeeded)
         {
-            if (result.IsLockedOut) ModelState.AddModelError("", "Account locked. Try after 15 minutes.");
-            else ModelState.AddModelError("", "Invalid credentials.");
+            if (result.IsLockedOut)
+                ModelState.AddModelError("", "Account locked. Try after 15 minutes.");
+            else
+                ModelState.AddModelError("", "Invalid credentials.");
+
             return View(model);
         }
 
-        // Get tenant
-        //var tenantUser = await _uow.TenantUsers.FirstOrDefaultAsync(tu => tu.UserId == user.Id && tu.IsActive);
+        //  Get Tenant Mapping (CRITICAL)
+        var tenantUser = await _uow.TenantUsers
+            .FirstOrDefaultAsync(t =>
+                t.UserId == user.Id &&
+                t.IsActive);
 
-        var claims = new List<Claim>
+        // If not SuperAdmin and no tenant → block login
+        if (!user.IsSuperAdmin && tenantUser == null)
         {
-            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new(ClaimTypes.Email, user.Email!),
-            new(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
-            new("FirstName", user.FirstName),
-        };
+            ModelState.AddModelError("", "No active tenant assigned.");
+            return View(model);
+        }
 
-        if (user.IsSuperAdmin) claims.Add(new(ClaimTypes.Role, "SuperAdmin"));
-        //if (tenantUser != null)
-        //{
-        //    claims.Add(new("TenantId", tenantUser.TenantId.ToString()));
-        //    claims.Add(new(ClaimTypes.Role, tenantUser.Role.ToString()));
-        //}
+        //  Build Claims
+        var claims = new List<Claim>
+    {
+        new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+        new Claim(ClaimTypes.Email, user.Email!),
+        new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
+        new Claim("FirstName", user.FirstName)
+    };
 
-        var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        // Add Tenant & Role if exists
+        if (tenantUser != null)
+        {
+            claims.Add(new Claim("TenantId", tenantUser.TenantId.ToString()));
+            claims.Add(new Claim(ClaimTypes.Role, tenantUser.Role.ToString()));
+        }
+
+        // Add SuperAdmin role if applicable
+        if (user.IsSuperAdmin)
+        {
+            claims.Add(new Claim(ClaimTypes.Role, "SuperAdmin"));
+        }
+
+        //Create Identity
+        var identity = new ClaimsIdentity(
+            claims,
+            CookieAuthenticationDefaults.AuthenticationScheme);
+
         var principal = new ClaimsPrincipal(identity);
-        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal,
-            new AuthenticationProperties { IsPersistent = model.RememberMe, ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7) });
 
+        //  Sign In
+        await HttpContext.SignInAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            principal,
+            new AuthenticationProperties
+            {
+                IsPersistent = model.RememberMe,
+                ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
+            });
+
+        //  Update Last Login
         user.LastLoginAt = DateTime.UtcNow;
         await _userManager.UpdateAsync(user);
 
-        return !string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl)
-            ? Redirect(returnUrl) : RedirectToAction("Index", "Dashboard");
+        //  Redirect
+        if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+            return Redirect(returnUrl);
+
+        return RedirectToAction("Index", "Dashboard");
     }
 
     [HttpGet]
@@ -233,7 +277,7 @@ public class AccountController : Controller
             await _uow.Tenants.AddAsync(tenant);
             await _uow.SaveChangesAsync();
 
-            // 3️⃣ Create TenantUser Mapping (CRITICAL FIX)
+            //Create TenantUser Mapping (CRITICAL FIX)
             var tenantUser = new TenantUser
             {
                 TenantId = tenant.Id,

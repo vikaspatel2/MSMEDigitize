@@ -1,0 +1,89 @@
+@model (IEnumerable<MSMEDigitize.Core.Entities.Payroll.Employee>, List<MSMEDigitize.Core.Entities.Payroll.Attendance>)
+@using MSMEDigitize.Core.Enums
+@{ ViewData["Title"] = "Attendance"; Layout = "_Layout";
+   int month = ViewBag.Month; int year = ViewBag.Year;
+   var employees = Model.Item1?.ToList() ?? new();
+   var attendances = Model.Item2 ?? new();
+   int daysInMonth = DateTime.DaysInMonth(year, month); }
+
+<div class="page-header d-flex justify-content-between align-items-center mb-4">
+    <div><h1 class="h3 mb-0">Attendance — @(new DateTime(year, month, 1).ToString("MMMM yyyy"))</h1></div>
+    <form method="get" class="d-flex gap-2">
+        <select name="month" class="form-select form-select-sm" style="width:130px">
+            @for (int m = 1; m <= 12; m++) {
+                <option value="@m" selected="@(m == month)">@(new DateTime(year, m, 1).ToString("MMMM"))</option>
+            }
+        </select>
+        <select name="year" class="form-select form-select-sm" style="width:90px">
+            @for (int y = DateTime.Now.Year; y >= DateTime.Now.Year - 1; y--) {
+                <option value="@y" selected="@(y == year)">@y</option>
+            }
+        </select>
+        <button class="btn btn-sm btn-primary">View</button>
+    </form>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-bordered table-sm align-middle mb-0" style="font-size:12px">
+                <thead class="bg-light">
+                    <tr>
+                        <th class="ps-3" style="min-width:150px">Employee</th>
+                        @for (int d = 1; d <= daysInMonth; d++) {
+                            var dow = new DateTime(year, month, d).DayOfWeek;
+                            <th class="text-center @(dow == DayOfWeek.Sunday ? "text-danger" : "")">@d</th>
+                        }
+                        <th class="text-center text-success">P</th>
+                        <th class="text-center text-danger">A</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var emp in employees) {
+                    <tr>
+                        <td class="ps-3 fw-semibold">@emp.FullName</td>
+                        @for (int d = 1; d <= daysInMonth; d++) {
+                            var dt = new DateTime(year, month, d);
+                            var att = attendances.FirstOrDefault(a => a.EmployeeId == emp.Id && a.Date.Date == dt.Date);
+                            var status = att?.Status;
+                            var bgClass = status == AttendanceStatus.Present ? "bg-success" :
+                                          status == AttendanceStatus.Absent ? "bg-danger" :
+                                          status == AttendanceStatus.HalfDay ? "bg-warning" : "bg-light";
+                            var lbl = status == AttendanceStatus.Present ? "P" :
+                                      status == AttendanceStatus.Absent ? "A" :
+                                      status == AttendanceStatus.HalfDay ? "H" :
+                                      dt.DayOfWeek == DayOfWeek.Sunday ? "H" : "—";
+                            <td class="text-center p-0">
+                                <span class="d-block @bgClass bg-opacity-25" style="cursor:pointer;padding:2px"
+                                    onclick="markAtt('@emp.Id','@dt.ToString("yyyy-MM-dd")',this)">@lbl</span>
+                            </td>
+                        }
+                        <td class="text-center fw-bold text-success">
+                            @attendances.Count(a => a.EmployeeId == emp.Id && a.Status == AttendanceStatus.Present)
+                        </td>
+                        <td class="text-center fw-bold text-danger">
+                            @attendances.Count(a => a.EmployeeId == emp.Id && a.Status == AttendanceStatus.Absent)
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+const statuses = ['Present','Absent','HalfDay','Leave'];
+const labels = ['P','A','H','L'];
+const classes = ['bg-success','bg-danger','bg-warning','bg-info'];
+function markAtt(empId, date, el) {
+    const cur = labels.indexOf(el.textContent.trim());
+    const next = (cur + 1) % statuses.length;
+    $.post('/Employee/MarkAttendance', { employeeId: empId, date: date, status: statuses[next] }, function() {
+        el.textContent = labels[next];
+        el.className = 'd-block ' + classes[next] + ' bg-opacity-25';
+    });
+}
+</script>
+}

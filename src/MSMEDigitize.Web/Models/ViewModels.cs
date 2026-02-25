@@ -1,3 +1,4 @@
+using MSMEDigitize.Application.DTOs;
 using MSMEDigitize.Core.Common;
 using MSMEDigitize.Core.DTOs;
 using MSMEDigitize.Core.Entities;
@@ -101,13 +102,23 @@ public class InvoiceListViewModel
 
 public class CreateInvoiceViewModel
 {
+    // Form fields (POST)
     public InvoiceType Type { get; set; }
     public string InvoiceNumber { get; set; } = "";
     public DateTime InvoiceDate { get; set; }
     public DateTime? DueDate { get; set; }
+    public Guid? CustomerId { get; set; }
+    public string? PlaceOfSupply { get; set; }
+    public string? PoNumber { get; set; }
+    public bool IsInterState { get; set; }
+    public decimal DiscountAmount { get; set; }
+    public string? Notes { get; set; }
+    public string? TermsAndConditions { get; set; }
+    public List<InvoiceLineItemRequest> LineItems { get; set; } = new();
+    // Dropdown data (GET)
     public List<CustomerDropdown> Customers { get; set; } = new();
     public List<ProductDropdown> Products { get; set; } = new();
-    //public List<TaxRate> TaxRates { get; set; } = new();
+    public List<TaxRate> TaxRates { get; set; } = new();
     public string TenantState { get; set; } = "";
 }
 

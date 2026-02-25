@@ -72,7 +72,7 @@ public class NotificationServiceImpl : INotificationService
             TwilioClient.Init(_config["Twilio:AccountSid"], _config["Twilio:AuthToken"]);
             // Format for India
             var formattedNumber = mobile.StartsWith("+91") ? mobile : $"+91{mobile}";
-            
+
             _ = MessageResource.CreateAsync(
                 body: message,
                 from: new Twilio.Types.PhoneNumber(_config["Twilio:FromNumber"]),
@@ -148,7 +148,7 @@ public class NotificationServiceImpl : INotificationService
     }
 }
 
-public class PDFServiceImpl : IPDFService
+public class PDFServiceImpl : IPDFService, MSMEDigitize.Core.Interfaces.IPdfService
 {
     private readonly AppDbContext _db;
     private readonly ILogger<PDFServiceImpl> _logger;
@@ -372,17 +372,17 @@ public class PDFServiceImpl : IPDFService
                         t.Cell().PaddingVertical(3).Text(v2).FontSize(8);
                     }
                     R("Employee Name:", ps.Employee?.FullName ?? "—",
-                      "Employee ID:",   ps.Employee?.EmployeeCode ?? "—");
-                    R("Department:",    ps.Employee?.DepartmentId ?? "—",
-                      "Designation:",  ps.Employee?.DesignationId ?? "—");
-                    R("PAN:",           ps.Employee?.PAN ?? "N/A",
-                      "UAN:",          ps.Employee?.UANNumber ?? "N/A");
-                    R("Bank A/C:",      Mask(ps.Employee?.BankAccountNumber),
-                      "Bank Name:",    ps.Employee?.BankName ?? "—");
-                    R("PF Account:",   ps.Employee?.PFAccountNumber ?? "N/A",
-                      "ESI Number:",   ps.Employee?.ESINumber ?? "N/A");
-                    R("Working Days:",  ps.WorkingDays.ToString("F1"),
-                      "Days Paid:",    ps.PaidDays.ToString("F1"));
+                      "Employee ID:", ps.Employee?.EmployeeCode ?? "—");
+                    R("Department:", ps.Employee?.DepartmentId ?? "—",
+                      "Designation:", ps.Employee?.DesignationId ?? "—");
+                    R("PAN:", ps.Employee?.PAN ?? "N/A",
+                      "UAN:", ps.Employee?.UANNumber ?? "N/A");
+                    R("Bank A/C:", Mask(ps.Employee?.BankAccountNumber),
+                      "Bank Name:", ps.Employee?.BankName ?? "—");
+                    R("PF Account:", ps.Employee?.PFAccountNumber ?? "N/A",
+                      "ESI Number:", ps.Employee?.ESINumber ?? "N/A");
+                    R("Working Days:", ps.WorkingDays.ToString("F1"),
+                      "Days Paid:", ps.PaidDays.ToString("F1"));
                 });
 
                 col.Item().PaddingTop(10).Row(row =>
@@ -403,14 +403,14 @@ public class PDFServiceImpl : IPDFService
                                 t.Cell().PaddingVertical(2).PaddingHorizontal(4).AlignRight()
                                     .Text(a > 0 ? $"₹{a:N2}" : "—").FontSize(8);
                             }
-                            E("Basic Salary",          ps.BasicSalary);
-                            E("HRA",                   ps.HRA);
-                            E("Special Allowance",     ps.SpecialAllowance);
-                            E("Conveyance Allowance",  ps.ConveyanceAllowance);
-                            E("Medical Allowance",     ps.MedicalAllowance);
-                            E("LTA",                   ps.LeaveTravelAllowance);
-                            if (ps.OvertimePay   > 0) E("Overtime Pay",    ps.OvertimePay);
-                            if (ps.Bonus         > 0) E("Bonus/Incentive", ps.Bonus);
+                            E("Basic Salary", ps.BasicSalary);
+                            E("HRA", ps.HRA);
+                            E("Special Allowance", ps.SpecialAllowance);
+                            E("Conveyance Allowance", ps.ConveyanceAllowance);
+                            E("Medical Allowance", ps.MedicalAllowance);
+                            E("LTA", ps.LeaveTravelAllowance);
+                            if (ps.OvertimePay > 0) E("Overtime Pay", ps.OvertimePay);
+                            if (ps.Bonus > 0) E("Bonus/Incentive", ps.Bonus);
                             t.Cell().ColumnSpan(2).PaddingVertical(2)
                                 .LineHorizontal(0.5f).LineColor(Colors.Grey.Lighten2);
                             t.Cell().PaddingVertical(3).PaddingHorizontal(4)
@@ -438,14 +438,14 @@ public class PDFServiceImpl : IPDFService
                                 t.Cell().PaddingVertical(2).PaddingHorizontal(4).AlignRight()
                                     .Text(a > 0 ? $"₹{a:N2}" : "—").FontSize(8);
                             }
-                            D("PF (Employee 12%)",      ps.PFEmployee);
-                            D("PF (Employer 12%)",      ps.PFEmployer);
-                            D("ESI (Employee 0.75%)",   ps.ESIEmployee);
-                            D("ESI (Employer 3.25%)",   ps.ESIEmployer);
-                            D("Professional Tax",        ps.ProfessionalTax);
-                            if (ps.IncomeTax      > 0) D("TDS / Income Tax",   ps.IncomeTax);
-                            if (ps.LoanDeduction  > 0) D("Loan Repayment",     ps.LoanDeduction);
-                            if (ps.OtherDeductions> 0) D("Other Deductions",   ps.OtherDeductions);
+                            D("PF (Employee 12%)", ps.PFEmployee);
+                            D("PF (Employer 12%)", ps.PFEmployer);
+                            D("ESI (Employee 0.75%)", ps.ESIEmployee);
+                            D("ESI (Employer 3.25%)", ps.ESIEmployer);
+                            D("Professional Tax", ps.ProfessionalTax);
+                            if (ps.IncomeTax > 0) D("TDS / Income Tax", ps.IncomeTax);
+                            if (ps.LoanDeduction > 0) D("Loan Repayment", ps.LoanDeduction);
+                            if (ps.OtherDeductions > 0) D("Other Deductions", ps.OtherDeductions);
                             t.Cell().ColumnSpan(2).PaddingVertical(2)
                                 .LineHorizontal(0.5f).LineColor(Colors.Grey.Lighten2);
                             t.Cell().PaddingVertical(3).PaddingHorizontal(4)
@@ -460,13 +460,13 @@ public class PDFServiceImpl : IPDFService
                 col.Item().PaddingTop(10)
                     .Background(Colors.Green.Lighten4)
                     .Padding(10).Row(r =>
-                {
-                    r.RelativeItem()
-                        .Text("NET SALARY (Take-Home Pay)").Bold().FontSize(12);
-                    r.AutoItem()
-                        .Text($"₹ {ps.NetSalary:N2}").Bold().FontSize(14)
-                        .FontColor(Colors.Green.Darken4);
-                });
+                    {
+                        r.RelativeItem()
+                            .Text("NET SALARY (Take-Home Pay)").Bold().FontSize(12);
+                        r.AutoItem()
+                            .Text($"₹ {ps.NetSalary:N2}").Bold().FontSize(14)
+                            .FontColor(Colors.Green.Darken4);
+                    });
 
                 col.Item().PaddingTop(4).Text($"Amount in Words: {AmountToWords((long)ps.NetSalary)} Rupees Only")
                     .FontSize(8).Italic()
@@ -607,7 +607,7 @@ public class PDFServiceImpl : IPDFService
                         t.Cell().Padding(4).AlignRight().Text($"{c:N2}");
                         t.Cell().Padding(4).AlignRight().Text($"{s:N2}");
                         t.Cell().Padding(4).AlignRight().Text($"{i:N2}");
-                        t.Cell().Padding(4).AlignRight().Text($"{c+s+i:N2}");
+                        t.Cell().Padding(4).AlignRight().Text($"{c + s + i:N2}");
                     }
                     DR("Outward Supplies (Taxable)", gstr.TotalTaxableValue,
                        gstr.TotalCGST, gstr.TotalSGST, gstr.TotalIGST);
@@ -650,10 +650,10 @@ public class PDFServiceImpl : IPDFService
                         t.Cell().Padding(4).AlignRight().Text($"{a:N2}");
                         t.Cell().Padding(4).Text(r);
                     }
-                    IR("ITC Available (as per GSTR-2B)",   gstr.ITCAvailable, "Auto-populated");
-                    IR("ITC Utilized against CGST+SGST",   gstr.ITCUtilized * 0.5m);
-                    IR("ITC Utilized against IGST",         gstr.ITCUtilized * 0.5m);
-                    IR("Total ITC Utilized",                gstr.ITCUtilized);
+                    IR("ITC Available (as per GSTR-2B)", gstr.ITCAvailable, "Auto-populated");
+                    IR("ITC Utilized against CGST+SGST", gstr.ITCUtilized * 0.5m);
+                    IR("ITC Utilized against IGST", gstr.ITCUtilized * 0.5m);
+                    IR("Total ITC Utilized", gstr.ITCUtilized);
                     t.Cell().ColumnSpan(3).LineHorizontal(0.5f);
                     t.Cell().Background(Colors.Green.Lighten4)
                         .Padding(4).Text("NET TAX PAYABLE").Bold();
@@ -711,13 +711,13 @@ public class PDFServiceImpl : IPDFService
                 // ── DECLARATION ──
                 col.Item().PaddingTop(15)
                     .Background(Colors.Grey.Lighten4).Padding(8).Column(dc =>
-                {
-                    dc.Item().Text("DECLARATION").Bold().FontSize(9);
-                    dc.Item().PaddingTop(4)
-                        .Text("I hereby solemnly affirm and declare that the information given herein above " +
-                              "is true and correct to the best of my knowledge and belief and nothing has been concealed therefrom.")
-                        .FontSize(8).Italic();
-                });
+                    {
+                        dc.Item().Text("DECLARATION").Bold().FontSize(9);
+                        dc.Item().PaddingTop(4)
+                            .Text("I hereby solemnly affirm and declare that the information given herein above " +
+                                  "is true and correct to the best of my knowledge and belief and nothing has been concealed therefrom.")
+                            .FontSize(8).Italic();
+                    });
 
                 col.Item().PaddingTop(15).Row(r =>
                 {
@@ -750,7 +750,7 @@ public class PDFServiceImpl : IPDFService
     public async Task<byte[]> GenerateFinancialReportPDFAsync(
         Guid tenantId, DateTime from, DateTime to, CancellationToken ct = default)
     {
-        var tenant   = await _db.Tenants.FirstOrDefaultAsync(t => t.Id == tenantId, ct);
+        var tenant = await _db.Tenants.FirstOrDefaultAsync(t => t.Id == tenantId, ct);
         var invoices = await _db.Invoices
             .Where(i => i.TenantId == tenantId && i.InvoiceDate >= from && i.InvoiceDate <= to)
             .ToListAsync(ct);
@@ -761,14 +761,14 @@ public class PDFServiceImpl : IPDFService
             .Where(e => e.TenantId == tenantId && e.ExpenseDate >= from && e.ExpenseDate <= to)
             .ToListAsync(ct);
 
-        decimal totalRevenue   = invoices.Sum(i => i.TotalAmount);
+        decimal totalRevenue = invoices.Sum(i => i.TotalAmount);
         decimal totalCollected = payments.Sum(p => p.Amount);
-        decimal totalExpenses  = expenses.Sum(e => e.TotalAmount);
-        decimal netProfit      = totalCollected - totalExpenses;
-        decimal totalGST       = invoices.Sum(i => i.CGSTAmount + i.SGSTAmount + i.IGSTAmount);
-        decimal outstanding    = invoices.Where(i => i.Status != InvoiceStatus.Paid)
+        decimal totalExpenses = expenses.Sum(e => e.TotalAmount);
+        decimal netProfit = totalCollected - totalExpenses;
+        decimal totalGST = invoices.Sum(i => i.CGSTAmount + i.SGSTAmount + i.IGSTAmount);
+        decimal outstanding = invoices.Where(i => i.Status != InvoiceStatus.Paid)
                                          .Sum(i => i.BalanceAmount);
-        decimal profitMargin   = totalCollected > 0 ? (netProfit / totalCollected * 100) : 0;
+        decimal profitMargin = totalCollected > 0 ? (netProfit / totalCollected * 100) : 0;
 
         QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
 
@@ -813,8 +813,8 @@ public class PDFServiceImpl : IPDFService
                     {
                         r.RelativeItem().Padding(3)
                             .Border(0.5f).BorderColor(
-                                color == "green"  ? Colors.Green.Darken1  :
-                                color == "red"    ? Colors.Red.Darken1    :
+                                color == "green" ? Colors.Green.Darken1 :
+                                color == "red" ? Colors.Red.Darken1 :
                                 color == "orange" ? Colors.Orange.Darken1 :
                                                     Colors.Blue.Darken1)
                             .Padding(8).Column(cc =>
@@ -822,16 +822,16 @@ public class PDFServiceImpl : IPDFService
                                 cc.Item().Text(title).FontSize(7)
                                     .FontColor(Colors.Grey.Darken2);
                                 cc.Item().Text(value).FontSize(13).Bold().FontColor(
-                                    color == "green"  ? Colors.Green.Darken4  :
-                                    color == "red"    ? Colors.Red.Darken4    :
+                                    color == "green" ? Colors.Green.Darken4 :
+                                    color == "red" ? Colors.Red.Darken4 :
                                     color == "orange" ? Colors.Orange.Darken3 :
                                                         Colors.Blue.Darken4);
                             });
                     }
-                    Card("Total Revenue Invoiced",    $"₹{totalRevenue:N0}",   "blue");
-                    Card("Total Cash Collected",       $"₹{totalCollected:N0}", "green");
-                    Card("Total Expenses",             $"₹{totalExpenses:N0}",  "red");
-                    Card("Net Profit / (Loss)",        $"₹{netProfit:N0}",      netProfit >= 0 ? "green" : "red");
+                    Card("Total Revenue Invoiced", $"₹{totalRevenue:N0}", "blue");
+                    Card("Total Cash Collected", $"₹{totalCollected:N0}", "green");
+                    Card("Total Expenses", $"₹{totalExpenses:N0}", "red");
+                    Card("Net Profit / (Loss)", $"₹{netProfit:N0}", netProfit >= 0 ? "green" : "red");
                 });
                 col.Item().PaddingTop(6).Row(r =>
                 {
@@ -852,10 +852,10 @@ public class PDFServiceImpl : IPDFService
                                                         Colors.Blue.Darken4);
                             });
                     }
-                    Card2("Outstanding Receivables",  $"₹{outstanding:N0}",       "orange");
-                    Card2("GST Collected (Govt.)",    $"₹{totalGST:N0}",          "purple");
-                    Card2("Total Invoices",           invoices.Count.ToString(),   "blue");
-                    Card2("Profit Margin",            $"{profitMargin:N1}%",
+                    Card2("Outstanding Receivables", $"₹{outstanding:N0}", "orange");
+                    Card2("GST Collected (Govt.)", $"₹{totalGST:N0}", "purple");
+                    Card2("Total Invoices", invoices.Count.ToString(), "blue");
+                    Card2("Profit Margin", $"{profitMargin:N1}%",
                         profitMargin >= 10 ? "green" : profitMargin >= 0 ? "orange" : "red");
                 });
 
@@ -923,10 +923,10 @@ public class PDFServiceImpl : IPDFService
                                           : Colors.Black);
                     }
                     PLR("Total Revenue Billed (all invoices)", totalRevenue, true);
-                    PLR("Less: Outstanding / Uncollected",     outstanding, false, true);
-                    PLR("= Net Revenue Actually Collected",    totalCollected, true);
+                    PLR("Less: Outstanding / Uncollected", outstanding, false, true);
+                    PLR("= Net Revenue Actually Collected", totalCollected, true);
                     t.Cell().ColumnSpan(2).PaddingVertical(2).LineHorizontal(0.5f);
-                    PLR("Less: Total Operating Expenses",      totalExpenses, false, true);
+                    PLR("Less: Total Operating Expenses", totalExpenses, false, true);
                     PLR("Less: GST Liability (remit to Govt)", totalGST, false, true);
                     t.Cell().ColumnSpan(2).LineHorizontal(1f)
                         .LineColor(Colors.Blue.Medium);
@@ -1096,15 +1096,15 @@ public class PDFServiceImpl : IPDFService
     private static string AmountToWords(long n)
     {
         if (n == 0) return "Zero";
-        if (n < 0)  return "Minus " + AmountToWords(-n);
+        if (n < 0) return "Minus " + AmountToWords(-n);
         string[] ones = { "", "One", "Two", "Three", "Four", "Five", "Six", "Seven",
             "Eight", "Nine", "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen",
             "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen" };
         string[] tens = { "", "", "Twenty", "Thirty", "Forty", "Fifty",
             "Sixty", "Seventy", "Eighty", "Ninety" };
-        if (n < 20)       return ones[n];
-        if (n < 100)      return tens[n / 10] + (n % 10 > 0 ? " " + ones[n % 10] : "");
-        if (n < 1_000)    return ones[n / 100] + " Hundred" + (n % 100 > 0 ? " " + AmountToWords(n % 100) : "");
+        if (n < 20) return ones[n];
+        if (n < 100) return tens[n / 10] + (n % 10 > 0 ? " " + ones[n % 10] : "");
+        if (n < 1_000) return ones[n / 100] + " Hundred" + (n % 100 > 0 ? " " + AmountToWords(n % 100) : "");
         if (n < 1_00_000) return AmountToWords(n / 1_000) + " Thousand" + (n % 1_000 > 0 ? " " + AmountToWords(n % 1_000) : "");
         if (n < 1_00_00_000) return AmountToWords(n / 1_00_000) + " Lakh" + (n % 1_00_000 > 0 ? " " + AmountToWords(n % 1_00_000) : "");
         return AmountToWords(n / 1_00_00_000) + " Crore" + (n % 1_00_00_000 > 0 ? " " + AmountToWords(n % 1_00_00_000) : "");

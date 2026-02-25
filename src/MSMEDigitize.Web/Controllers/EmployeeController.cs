@@ -12,7 +12,6 @@ using MSMEDigitize.Core.Entities.Subscriptions;
 using MSMEDigitize.Core.Entities.Tenants;
 using MSMEDigitize.Core.Enums;
 using MSMEDigitize.Core.Interfaces;
-using MSMEDigitize.Core.Interfaces;
 
 namespace MSMEDigitize.Web.Controllers;
 
@@ -32,7 +31,7 @@ public class EmployeeController : Controller
         var employees = await _uow.Employees.Query()
             .Include(e => e.Department)
             .Include(e => e.Designation)
-            .Where(e => e.TenantId == TenantId && e.IsActive)
+            .Where(e => e.TenantId == TenantId && e.Status != MSMEDigitize.Core.Enums.EmployeeStatus.Terminated)
             .OrderBy(e => e.FullName).ToListAsync();
         return View(employees);
     }
@@ -61,7 +60,11 @@ public class EmployeeController : Controller
     public async Task<IActionResult> ProcessPayroll(int month, int year)
     {
         if (month == 0) { month = DateTime.Now.Month; year = DateTime.Now.Year; }
-        var payrolls = await _payrollService.ProcessPayrollAsync(TenantId, month, year);
+        var result = await _payrollService.ProcessPayrollAsync(TenantId, month, year);
+        var payrolls = result.IsSuccess
+            ? result.Value as IEnumerable<MSMEDigitize.Core.Entities.Payroll.Payslip>
+              ?? new List<MSMEDigitize.Core.Entities.Payroll.Payslip>()
+            : new List<MSMEDigitize.Core.Entities.Payroll.Payslip>();
         var summary = await _payrollService.GetPayrollSummaryAsync(TenantId, month, year);
         ViewBag.Month = month; ViewBag.Year = year;
         return View((payrolls, summary));
@@ -70,7 +73,7 @@ public class EmployeeController : Controller
     public async Task<IActionResult> Attendance(int month, int year)
     {
         if (month == 0) { month = DateTime.Now.Month; year = DateTime.Now.Year; }
-        var employees = await _uow.Employees.FindAsync(e => e.TenantId == TenantId && e.IsActive);
+        var employees = await _uow.Employees.FindAsync(e => e.TenantId == TenantId && e.Status != MSMEDigitize.Core.Enums.EmployeeStatus.Terminated);
         var attendances = await _uow.Attendances.FindAsync(
             a => a.TenantId == TenantId && a.Date.Month == month && a.Date.Year == year);
         ViewBag.Month = month; ViewBag.Year = year;

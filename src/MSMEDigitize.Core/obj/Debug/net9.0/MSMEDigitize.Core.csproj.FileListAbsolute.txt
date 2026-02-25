@@ -10,3 +10,4 @@ D:\Vikas\MyProjects\MSMEDigitize\src\MSMEDigitize.Core\obj\Debug\net9.0\MSMEDigi
 D:\Vikas\MyProjects\MSMEDigitize\src\MSMEDigitize.Core\obj\Debug\net9.0\refint\MSMEDigitize.Core.dll
 D:\Vikas\MyProjects\MSMEDigitize\src\MSMEDigitize.Core\obj\Debug\net9.0\MSMEDigitize.Core.pdb
 D:\Vikas\MyProjects\MSMEDigitize\src\MSMEDigitize.Core\obj\Debug\net9.0\ref\MSMEDigitize.Core.dll
+D:\Vikas\MyProjects\MSMEDigitize\src\MSMEDigitize.Core\obj\Debug\net9.0\MSMEDigitize.Core.sourcelink.json

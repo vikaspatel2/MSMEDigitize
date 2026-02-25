@@ -1,122 +1,255 @@
 @model MSMEDigitize.Web.ViewModels.InvoiceViewModel
-@{ ViewData["Title"] = "Create Invoice"; }
-<div class="row justify-content-center">
-<div class="col-xl-10">
-<div class="card border-0 shadow-sm">
-  <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center py-3">
-    <div><h5 class="fw-bold mb-0">New Invoice</h5><small class="text-muted">Fill in invoice details</small></div>
-    <a asp-action="Index" class="btn btn-sm btn-outline-secondary"><i class="fas fa-arrow-left me-1"></i>Back</a>
-  </div>
-  <div class="card-body">
-    <form asp-action="Create" method="post" id="invoiceForm">
-      @Html.AntiForgeryToken()
-      <div class="row g-3 mb-4">
-        <div class="col-md-6">
-          <label class="form-label small fw-semibold">Customer *</label>
-@*           <select asp-for="CustomerId" class="form-select" required>
- *@            <option value="">Select customer...</option>
-@*             @foreach(var c in ViewBag.Customers as IEnumerable<MSMEDigitize.Core.Entities.Customer>){
- *@          @*   <option value="@c.Id" data-gst="@c.GSTNumber" data-state="@c.State">@c.Name (@c.Phone)</option>}
-          </select> *@
-          <a asp-controller="Customer" asp-action="Create" class="small text-primary" target="_blank"><i class="fas fa-plus me-1"></i>Add new customer</a>
-        </div>
-        <div class="col-md-3"><label class="form-label small fw-semibold">Invoice Date *</label><input asp-for="InvoiceDate" type="date" class="form-control"></div>
-        <div class="col-md-3"><label class="form-label small fw-semibold">Due Date *</label><input asp-for="DueDate" type="date" class="form-control"></div>
-        <div class="col-md-3"><label class="form-label small fw-semibold">Invoice Type</label>
-          <select asp-for="Type" class="form-select">
-            @foreach(var t in Enum.GetValues<MSMEDigitize.Core.Enums.InvoiceType>()){<option value="@t">@t</option>}
-          </select>
-        </div>
-      @*   <div class="col-md-3"><label class="form-label small fw-semibold">PO Number</label><input asp-for="PoNumber" class="form-control" placeholder="Optional"></div>
-        <div class="col-md-3"><label class="form-label small fw-semibold">Place of Supply</label><input asp-for="PlaceOfSupply" class="form-control" placeholder="e.g. Maharashtra"></div>
-        <div class="col-md-3 d-flex align-items-end"><div class="form-check mb-2"><input asp-for="IsInterState" class="form-check-input" id="isInterState"><label asp-for="IsInterState" class="form-check-label small">Inter-State Supply (IGST)</label></div></div> *@
-      </div>
-      <!-- Line Items -->
-      <h6 class="fw-bold mb-3 border-bottom pb-2">Line Items</h6>
-      <div id="lineItems"></div>
-      <button type="button" class="btn btn-outline-primary btn-sm mb-4" onclick="addLine()"><i class="fas fa-plus me-1"></i>Add Item</button>
-      <!-- Totals -->
-      <div class="row justify-content-end">
-        <div class="col-md-5">
-          <table class="table table-sm">
-            <tr><td class="text-muted small">Sub Total</td><td class="text-end fw-semibold" id="subTotal">₹0</td></tr>
-            <tr><td class="text-muted small">CGST</td><td class="text-end" id="cgstAmt">₹0</td></tr>
-            <tr><td class="text-muted small">SGST</td><td class="text-end" id="sgstAmt">₹0</td></tr>
-            <tr><td class="text-muted small">IGST</td><td class="text-end" id="igstAmt">₹0</td></tr>
-            <tr class="table-primary fw-bold"><td>Total</td><td class="text-end fs-5" id="grandTotal">₹0</td></tr>
-          </table>
-          @* <input asp-for="DiscountAmount" class="form-control form-control-sm mb-2" placeholder="Discount amount (₹)"> *@
-        </div>
-      </div>
-      @* <div class="mb-3"><label class="form-label small fw-semibold">Notes</label><textarea asp-for="Notes" class="form-control" rows="2" placeholder="Payment terms, thank you message..."></textarea></div> *@
-      <div class="d-flex gap-2 justify-content-end">
-        <button type="submit" name="action" value="draft" class="btn btn-outline-secondary"><i class="fas fa-save me-2"></i>Save Draft</button>
-        <button type="submit" name="action" value="send" class="btn btn-primary"><i class="fas fa-paper-plane me-2"></i>Save & Send</button>
-      </div>
-    </form>
-  </div>
+@using MSMEDigitize.Core.Enums
+@{ ViewData["Title"] = "Create Invoice"; Layout = "_Layout"; }
+
+<div class="page-header d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h3 mb-0">New Invoice</h1>
+        <nav aria-label="breadcrumb"><ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="/Invoice">Invoices</a></li>
+            <li class="breadcrumb-item active">Create</li>
+        </ol></nav>
+    </div>
 </div>
-</div></div>
+
+<form asp-action="Create" method="post" id="invoiceForm">
+    @Html.AntiForgeryToken()
+    <div class="row g-4">
+        <!-- Left column -->
+        <div class="col-lg-8">
+            <!-- Customer & Header -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-transparent fw-semibold py-3">Invoice Details</div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label class="form-label fw-semibold">Customer <span class="text-danger">*</span></label>
+                            <select asp-for="CustomerId" class="form-select" required id="customerSel">
+                                <option value="">— Select customer —</option>
+                                @foreach (var c in Model.Customers) {
+                                    <option value="@c.Id" data-gst="@c.GSTNumber" data-state="@c.State">
+                                        @c.Name @(string.IsNullOrEmpty(c.Phone) ? "" : $"({c.Phone})")
+                                    </option>
+                                }
+                            </select>
+                            <a href="/Customer/Create" class="small text-primary" target="_blank">
+                                <i class="fas fa-plus me-1"></i>Add new customer
+                            </a>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Invoice Type</label>
+                            <select asp-for="Type" class="form-select">
+                                <option value="0">Tax Invoice</option>
+                                <option value="1">Proforma Invoice</option>
+                                <option value="2">Quotation / Estimate</option>
+                                <option value="3">Credit Note</option>
+                                <option value="4">Debit Note</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Invoice Date <span class="text-danger">*</span></label>
+                            <input asp-for="InvoiceDate" type="date" class="form-control" required />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">Due Date</label>
+                            <input asp-for="DueDate" type="date" class="form-control" />
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold">PO Number</label>
+                            <input asp-for="PoNumber" class="form-control" placeholder="Optional" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Place of Supply</label>
+                            <input asp-for="PlaceOfSupply" class="form-control" placeholder="e.g. Maharashtra" />
+                        </div>
+                        <div class="col-md-6 d-flex align-items-end pb-1">
+                            <div class="form-check">
+                                <input asp-for="IsInterState" class="form-check-input" id="isInterState" />
+                                <label asp-for="IsInterState" class="form-check-label">Inter-State Supply (IGST)</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Line Items -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-transparent d-flex justify-content-between align-items-center py-3">
+                    <span class="fw-semibold">Line Items</span>
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="addLine()">
+                        <i class="fas fa-plus me-1"></i>Add Item
+                    </button>
+                </div>
+                <div class="card-body p-0">
+                    <div id="lineItems" class="p-3"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right column -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm mb-4 position-sticky" style="top:20px">
+                <div class="card-header bg-transparent fw-semibold py-3">Summary</div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Sub Total</span>
+                        <span id="subTotal" class="fw-semibold">₹0</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2" id="cgstRow">
+                        <span class="text-muted">CGST</span>
+                        <span id="cgstAmt">₹0</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2" id="sgstRow">
+                        <span class="text-muted">SGST</span>
+                        <span id="sgstAmt">₹0</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2" id="igstRow" style="display:none!important">
+                        <span class="text-muted">IGST</span>
+                        <span id="igstAmt">₹0</span>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small text-muted">Discount (₹)</label>
+                        <input asp-for="DiscountAmount" type="number" step="0.01" class="form-control form-control-sm"
+                               id="discountInput" value="0" oninput="calcTotal()" />
+                    </div>
+                    <hr />
+                    <div class="d-flex justify-content-between">
+                        <span class="fw-bold fs-5">Total</span>
+                        <span id="grandTotal" class="fw-bold fs-5 text-primary">₹0</span>
+                    </div>
+                    <hr />
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Notes</label>
+                        <textarea asp-for="Notes" class="form-control" rows="3"
+                                  placeholder="Payment terms, thank you message…"></textarea>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-2"></i>Create Invoice
+                        </button>
+                        <a href="/Invoice" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
 @section Scripts {
 <script>
 let lineCount = 0;
-         @* const products = @Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject((ViewBag.Products as IEnumerable<MSMEDigitize.Core.Entities.Product>)?.Select(p => new { id = p.Id, name = p.Name, price = p.SalePrice, gst = p.GSTRate, hsn = p.HSNCode ?? p.SACCode, unit = p.Unit }))); *@
+const products = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+    Model.Products.Select(p => new {
+        id = p.Id.ToString(),
+        name = p.Name,
+        price = p.Price,
+        gst = p.GSTRate,
+        hsn = p.HSNCode,
+        unit = p.Unit
+    })
+));
+
 function addLine() {
-  const div = document.createElement("div");
-  const i = lineCount++;
-  div.className = "row g-2 mb-2 line-item align-items-end";
-  div.innerHTML = `
-    <div class="col-md-3"><label class="form-label small">Product/Service</label>
-      <select class="form-select form-select-sm product-sel" onchange="fillLine(this,${i})">
-        <option value="">Custom / Type below</option>
-        ${products.map(p => `<option value="${p.id}" data-price="${p.price}" data-gst="${p.gst}" data-hsn="${p.hsn}" data-unit="${p.unit}">${p.name}</option>`).join("")}
-      </select>
-      <input type="hidden" name="LineItems[${i}].ProductId" class="prod-id">
-    </div>
-    <div class="col-md-3"><label class="form-label small">Description *</label><input name="LineItems[${i}].Description" class="form-control form-control-sm desc" required></div>
-    <div class="col-1"><label class="form-label small">HSN/SAC</label><input name="LineItems[${i}].HSNSACCode" class="form-control form-control-sm hsn"></div>
-    <div class="col-1"><label class="form-label small">Qty *</label><input name="LineItems[${i}].Quantity" type="number" step="0.01" class="form-control form-control-sm qty" value="1" onchange="calcTotal()" required></div>
-    <div class="col-1"><label class="form-label small">Unit</label><input name="LineItems[${i}].Unit" class="form-control form-control-sm" value="Nos"></div>
-    <div class="col-2"><label class="form-label small">Rate *</label><input name="LineItems[${i}].UnitPrice" type="number" step="0.01" class="form-control form-control-sm rate" onchange="calcTotal()" required></div>
-    <div class="col-1"><label class="form-label small">GST%</label><select name="LineItems[${i}].GSTRate" class="form-select form-select-sm gst-rate" onchange="calcTotal()"><option value="0">0%</option><option value="5">5%</option><option value="12">12%</option><option value="18" selected>18%</option><option value="28">28%</option></select></div>
-    <div class="col-1 text-end"><label class="form-label small">Amount</label><div class="small fw-bold line-amount text-primary">₹0</div></div>
-    <div class="col-auto"><button type="button" class="btn btn-sm btn-outline-danger" onclick="this.closest('.line-item').remove();calcTotal()"><i class="fas fa-trash"></i></button></div>`;
-  document.getElementById("lineItems").appendChild(div);
+    const i = lineCount++;
+    const div = document.createElement('div');
+    div.className = 'row g-2 mb-3 line-item align-items-end border-bottom pb-3';
+    const opts = products.map(p =>
+        `<option value="${p.id}" data-price="${p.price}" data-gst="${p.gst}" data-hsn="${p.hsn}" data-unit="${p.unit}">${p.name}</option>`
+    ).join('');
+    div.innerHTML = `
+        <div class="col-md-4">
+            <label class="form-label small">Product / Service</label>
+            <select class="form-select form-select-sm product-sel" onchange="fillLine(this,${i})">
+                <option value="">Custom / type below</option>
+                ${opts}
+            </select>
+            <input type="hidden" name="LineItems[${i}].ProductId" class="prod-id" />
+        </div>
+        <div class="col-md-4">
+            <label class="form-label small">Description <span class="text-danger">*</span></label>
+            <input name="LineItems[${i}].Description" class="form-control form-control-sm desc" required />
+        </div>
+        <div class="col-md-4 d-flex gap-1 align-items-end">
+            <div class="flex-fill">
+                <label class="form-label small">HSN/SAC</label>
+                <input name="LineItems[${i}].HSNSACCode" class="form-control form-control-sm hsn" />
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-danger mb-0"
+                onclick="this.closest('.line-item').remove();calcTotal()">
+                <i class="fas fa-trash"></i>
+            </button>
+        </div>
+        <div class="col-3">
+            <label class="form-label small">Qty</label>
+            <input name="LineItems[${i}].Quantity" type="number" step="0.01" value="1"
+                   class="form-control form-control-sm qty" oninput="calcTotal()" required />
+        </div>
+        <div class="col-2">
+            <label class="form-label small">Unit</label>
+            <input name="LineItems[${i}].Unit" class="form-control form-control-sm unit-field" value="Nos" />
+        </div>
+        <div class="col-3">
+            <label class="form-label small">Rate (₹)</label>
+            <input name="LineItems[${i}].UnitPrice" type="number" step="0.01" value="0"
+                   class="form-control form-control-sm rate" oninput="calcTotal()" required />
+        </div>
+        <div class="col-2">
+            <label class="form-label small">GST %</label>
+            <select name="LineItems[${i}].GSTRate" class="form-select form-select-sm gst-rate" onchange="calcTotal()">
+                <option value="0">0%</option>
+                <option value="5">5%</option>
+                <option value="12" selected>12%</option>
+                <option value="18">18%</option>
+                <option value="28">28%</option>
+            </select>
+        </div>
+        <div class="col-2 text-end">
+            <label class="form-label small">Amount</label>
+            <div class="fw-bold text-primary line-amount">₹0</div>
+        </div>`;
+    document.getElementById('lineItems').appendChild(div);
 }
+
 function fillLine(sel, i) {
-  const opt = sel.options[sel.selectedIndex];
-  const row = sel.closest(".line-item");
-  if (opt.value) {
-    row.querySelector(".prod-id").value = opt.value;
-    row.querySelector(".rate").value = opt.dataset.price;
-    row.querySelector(".hsn").value = opt.dataset.hsn || "";
-    row.querySelector(".gst-rate").value = opt.dataset.gst || "18";
-    const pName = products.find(p => p.id == opt.value);
-    if (pName) row.querySelector(".desc").value = pName.name;
-  }
-  calcTotal();
+    const opt = sel.options[sel.selectedIndex];
+    if (!opt.value) return;
+    const row = sel.closest('.line-item');
+    row.querySelector('.prod-id').value = opt.value;
+    row.querySelector('.rate').value = opt.dataset.price;
+    row.querySelector('.hsn').value = opt.dataset.hsn || '';
+    row.querySelector('.gst-rate').value = opt.dataset.gst || '12';
+    row.querySelector('.unit-field').value = opt.dataset.unit || 'Nos';
+    const prod = products.find(p => p.id === opt.value);
+    if (prod) row.querySelector('.desc').value = prod.name;
+    calcTotal();
 }
+
 function calcTotal() {
-  let sub=0,cgst=0,sgst=0,igst=0;
-  const isInter = document.getElementById("isInterState").checked;
-  document.querySelectorAll(".line-item").forEach(row => {
-    const qty = parseFloat(row.querySelector(".qty")?.value)||0;
-    const rate = parseFloat(row.querySelector(".rate")?.value)||0;
-    const gst = parseFloat(row.querySelector(".gst-rate")?.value)||0;
-    const taxable = qty*rate;
-    const tax = taxable*gst/100;
-    sub += taxable;
-    if (isInter) igst += tax; else { cgst += tax/2; sgst += tax/2; }
-    row.querySelector(".line-amount").textContent = "₹" + (taxable+tax).toFixed(0);
-  });
-  document.getElementById("subTotal").textContent = "₹" + sub.toFixed(0);
-  document.getElementById("cgstAmt").textContent = "₹" + cgst.toFixed(0);
-  document.getElementById("sgstAmt").textContent = "₹" + sgst.toFixed(0);
-  document.getElementById("igstAmt").textContent = "₹" + igst.toFixed(0);
-  const disc = parseFloat(document.querySelector("[name='DiscountAmount']")?.value)||0;
-  document.getElementById("grandTotal").textContent = "₹" + (sub+cgst+sgst+igst-disc).toFixed(0);
+    let sub = 0, cgst = 0, sgst = 0, igst = 0;
+    const isInter = document.getElementById('isInterState').checked;
+    document.querySelectorAll('.line-item').forEach(row => {
+        const qty  = parseFloat(row.querySelector('.qty')?.value)  || 0;
+        const rate = parseFloat(row.querySelector('.rate')?.value)  || 0;
+        const gst  = parseFloat(row.querySelector('.gst-rate')?.value) || 0;
+        const taxable = qty * rate;
+        const tax = taxable * gst / 100;
+        sub += taxable;
+        if (isInter) igst += tax; else { cgst += tax / 2; sgst += tax / 2; }
+        row.querySelector('.line-amount').textContent = '₹' + (taxable + tax).toFixed(2);
+    });
+    const disc = parseFloat(document.getElementById('discountInput')?.value) || 0;
+    const total = sub + cgst + sgst + igst - disc;
+    document.getElementById('subTotal').textContent  = '₹' + sub.toFixed(2);
+    document.getElementById('cgstAmt').textContent   = '₹' + cgst.toFixed(2);
+    document.getElementById('sgstAmt').textContent   = '₹' + sgst.toFixed(2);
+    document.getElementById('igstAmt').textContent   = '₹' + igst.toFixed(2);
+    document.getElementById('grandTotal').textContent = '₹' + total.toFixed(2);
+    document.getElementById('igstRow').style.display  = isInter ? '' : 'none';
+    document.getElementById('cgstRow').style.display  = isInter ? 'none' : '';
+    document.getElementById('sgstRow').style.display  = isInter ? 'none' : '';
 }
-addLine(); // start with one empty line
-document.querySelector("[name='IsInterState']")?.addEventListener("change", calcTotal);
-document.querySelector("[name='DiscountAmount']")?.addEventListener("input", calcTotal);
-</script>}
+
+document.getElementById('isInterState').addEventListener('change', calcTotal);
+addLine(); // start with one row
+</script>
+}

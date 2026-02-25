@@ -1,9 +1,7 @@
-using DocumentFormat.OpenXml.Drawing;
-using DocumentFormat.OpenXml.Wordprocessing;
+using MSMEDigitize.Core.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using MSMEDigitize.Core.Common;
 using MSMEDigitize.Core.Entities;
 using MSMEDigitize.Core.Entities.AI;
 using MSMEDigitize.Core.Entities.Banking;
@@ -19,10 +17,8 @@ using MSMEDigitize.Infrastructure.Data;
 using MSMEDigitize.Infrastructure.ExternalServices;
 using QRCoder;
 using System.Text;
-using static QRCoder.PayloadGenerator.SwissQrCode;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace MSMEDigitize.Application.Services;
+namespace MSMEDigitize.Infrastructure.Services;
 
 public class InvoiceService : IInvoiceService
 {
@@ -299,41 +295,41 @@ public class InvoiceService : IInvoiceService
     private string BuildInvoiceEmailHtml(Invoice invoice, string pdfUrl)
     {
         return $@"
-        <div style='font-family:Segoe UI,sans-serif;max-width:600px;margin:auto;'>
-            <div style='background:#1E40AF;color:white;padding:20px;text-align:center;'>
-                <h2>Invoice from {invoice.Tenant?.BusinessName}</h2>
-            </div>
+<div style='font-family:Segoe UI,sans-serif;max-width:600px;margin:auto;'>
+    <div style='background:#1E40AF;color:white;padding:20px;text-align:center;'>
+        <h2>Invoice from {invoice.Tenant?.BusinessName}</h2>
+    </div>
 
-            <div style='padding:30px;'>
-                <p>Dear {invoice.CustomerName},</p>
+    <div style='padding:30px;'>
+        <p>Dear {invoice.CustomerName},</p>
 
-                <p>
-                    Please find your invoice 
-                    <strong>{invoice.InvoiceNumber}</strong> 
-                    for 
-                    <strong>₹{invoice.TotalAmount:N2}</strong>.
-                </p>
+        <p>
+            Please find your invoice 
+            <strong>{invoice.InvoiceNumber}</strong> 
+            for 
+            <strong>₹{invoice.TotalAmount:N2}</strong>.
+        </p>
 
-                <p>
-                    Due Date: <strong>{invoice.DueDate:dd MMMM yyyy}</strong>
-                </p>
+        <p>
+            Due Date: <strong>{invoice.DueDate:dd MMMM yyyy}</strong>
+        </p>
 
-                <div style='background:#EFF6FF;padding:15px;border-radius:8px;text-align:center;margin:20px 0;'>
-                    <a href='{pdfUrl}' 
-                       style='background:#2563EB;color:white;padding:12px 24px;text-decoration:none;border-radius:6px;display:inline-block;'>
-                        Download Invoice PDF
-                    </a>
-                </div>
+        <div style='background:#EFF6FF;padding:15px;border-radius:8px;text-align:center;margin:20px 0;'>
+            <a href='{pdfUrl}' 
+               style='background:#2563EB;color:white;padding:12px 24px;text-decoration:none;border-radius:6px;display:inline-block;'>
+                Download Invoice PDF
+            </a>
+        </div>
 
-                <p>
-                    For any queries, please contact {invoice.Tenant?.Email}
-                </p>
-            </div>
+        <p>
+            For any queries, please contact {invoice.Tenant?.Email}
+        </p>
+    </div>
 
-            <div style='background:#F8FAFC;padding:15px;text-align:center;font-size:12px;color:#64748B;'>
-                Powered by MSMEDigitize | India's Smart Business Platform
-            </div>
-        </div>";
+    <div style='background:#F8FAFC;padding:15px;text-align:center;font-size:12px;color:#64748B;'>
+        Powered by MSMEDigitize | India's Smart Business Platform
+    </div>
+</div>";
     }
 
     private string BuildQRData(Invoice invoice)
@@ -387,7 +383,7 @@ public class InvoiceService : IInvoiceService
 
     // ── Controller-facing CRUD stubs ─────────────────────────────────────────
     public async Task<MSMEDigitize.Core.DTOs.PagedResult<object>> GetInvoicesAsync(
-        Guid tenantId, int page, int size, string? search,
+        Guid tenantId, int page, int size, string? search, 
         MSMEDigitize.Core.Enums.InvoiceStatus? status, CancellationToken ct = default)
     {
         var query = _db.Invoices.Where(i => i.TenantId == tenantId);
@@ -400,9 +396,7 @@ public class InvoiceService : IInvoiceService
         return new MSMEDigitize.Core.DTOs.PagedResult<object>
         {
             Items = items.Cast<object>().ToList(),
-            TotalCount = total,
-            PageNumber = page,
-            PageSize = size
+            TotalCount = total, PageNumber = page, PageSize = size
         };
     }
 
@@ -430,8 +424,7 @@ public class InvoiceService : IInvoiceService
         var invoices = await _db.Invoices
             .Where(i => i.TenantId == tenantId && i.InvoiceDate.Month == month && i.InvoiceDate.Year == year)
             .ToListAsync(ct);
-        return new
-        {
+        return new {
             TotalTaxableValue = invoices.Sum(i => i.SubTotal),
             TotalCGST = invoices.Sum(i => i.CGSTAmount),
             TotalSGST = invoices.Sum(i => i.SGSTAmount),
